@@ -8,11 +8,19 @@ output: github_document
 library(tidyverse)
 ```
 
+```{r load-data}
+tweets <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv')
+tweets
+```
+
+
 ## Dataset
 
 A brief description of your dataset including its provenance, dimensions, etc. as well as the reason why you chose this dataset.
 
 Make sure to load the data and use inline code for some of this information.
+
+For our dataset, we have chosen to examine the 2021 WEB Du Bois & Juneteenth Twitter data where each observation is a tweet and the accompanying metadata such as likes, retweets, and location. The dataset includes 13 different variables and a total of 445 observations. 
 
 ## Questions
 
