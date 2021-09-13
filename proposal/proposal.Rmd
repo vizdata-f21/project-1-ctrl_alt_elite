@@ -1,6 +1,6 @@
 ---
 title: "Project proposal"
-author: "Team name"
+author: "ctrl_alt_elite"
 output: github_document
 ---
 

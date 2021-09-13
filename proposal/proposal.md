@@ -1,10 +1,13 @@
 Project proposal
 ================
-Team name
+ctrl\_alt\_elite
 
 ``` r
 library(tidyverse)
 ```
+
+    ## Warning in system("timedatectl", intern = TRUE): running command 'timedatectl'
+    ## had status 1
 
 ## Dataset
 
