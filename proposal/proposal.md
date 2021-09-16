@@ -32,8 +32,11 @@ glimpse(tweets)
 
 ## Dataset
 
-For our dataset, we have chosen to examine the 2021 WEB Du Bois &
-Juneteenth Twitter data where each observation is a tweet and the
+Our dataset was collected from:
+<https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md>
+
+For our dataset (Tweets), we have chosen to examine the 2021 WEB Du Bois
+& Juneteenth Twitter data where each observation is a tweet and the
 accompanying metadata such as likes, retweets, and location. The dataset
 includes 13 different variables and a total of 445 observations. The
 data was collected via scraping from Twitter based on the presence of
@@ -80,10 +83,10 @@ displayed on the world map.
 
 The second question we want to answer is “How do the number of likes and
 followers of a Twitter user vary based on user verification status?” We
-will use the variables ‘followers’, ‘verified’ and ‘like\_count’. We
-will map `followers` to the x axis, and `like_count` to the y axis, and
-then display each point using geom\_point. Then, we will use an
-aesthetic such as color or shape to map the verification status of the
-tweet author, such that viewers can easily distinguish the two groups.
-We will also employ geom\_smooth to point out noticeable trend lines,
-and how they differ between verified and unverified users.
+will use the variables `followers`, `verified` and `like_count`. We will
+map `followers` to the x axis, and `like_count` to the y axis, and then
+display each point using geom\_point. Then, we will use an aesthetic
+such as color or shape to map the verification status of the tweet
+author, such that viewers can easily distinguish the two groups. We will
+also employ geom\_smooth to point out noticeable trend lines, and how
+they differ between verified and unverified users.
