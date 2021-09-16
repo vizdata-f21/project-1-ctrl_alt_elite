@@ -6,11 +6,19 @@ ctrl\_alt\_elite
 library(tidyverse)
 ```
 
-    ## Warning in system("timedatectl", intern = TRUE): running command 'timedatectl'
-    ## had status 1
+``` r
+tweets <- readr::read_csv(
+  "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv"
+)
+```
+
+## Dataset
+
+Our dataset was collected from:
+
+<https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md>
 
 ``` r
-tweets <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv')
 glimpse(tweets)
 ```
 
@@ -29,11 +37,6 @@ glimpse(tweets)
     ## $ verified      <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, …
     ## $ lat           <dbl> 40.71273, 40.71273, 40.71273, 40.71273, 40.71273, 36.220…
     ## $ long          <dbl> -74.00602, -74.00602, -74.00602, -74.00602, -74.00602, -…
-
-## Dataset
-
-Our dataset was collected from:
-<https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md>
 
 For our dataset (Tweets), we have chosen to examine the 2021 WEB Du Bois
 & Juneteenth Twitter data where each observation is a tweet and the

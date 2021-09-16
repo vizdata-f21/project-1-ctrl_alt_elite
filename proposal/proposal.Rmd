@@ -4,31 +4,44 @@ author: "ctrl_alt_elite"
 output: github_document
 ---
 
-```{r load-packages, message = FALSE}
+```{r load-packages, message = FALSE, warning = FALSE}
 library(tidyverse)
 ```
 
 ```{r load-data, message = FALSE, warning = FALSE}
-tweets <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv')
-glimpse(tweets)
+tweets <- readr::read_csv(
+  "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv"
+)
 ```
-
 
 ## Dataset
 
-Our dataset was collected from: https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md
+Our dataset was collected from:
 
-For our dataset (Tweets), we have chosen to examine the 2021 WEB Du Bois & Juneteenth Twitter data where each observation is a tweet and the accompanying metadata such as likes, retweets, and location. The dataset includes `r ncol(tweets)` different variables and a total of `r nrow(tweets)` observations. The data was collected via scraping from Twitter based on the presence of the WEB Du Bois challenge hashtag. 
+https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md
+
+```{r glimpse-data}
+glimpse(tweets)
+```
+
+For our dataset (Tweets), we have chosen to examine the 2021 WEB Du Bois & 
+Juneteenth Twitter data where each observation is a tweet and the accompanying 
+metadata such as likes, retweets, and location. The dataset includes 
+`r ncol(tweets)` different variables and a total of `r nrow(tweets)` observations. 
+The data was collected via scraping from Twitter based on the presence of the
+WEB Du Bois challenge hashtag. 
 
 We chose this dataset because we appreciate the importance of celebrating W.E.B 
 DuBois’s legacy in data visualization. The #DuBois challenge was a Tidy Tuesday 
 challenge that asked users to recreate his 1900 Paris Exposition today. This 
-exposition included visualizations that described the income, wealth, 
-employment, and mobility of African Americans during this time period. By 
-recreating these visualizations through the #DuBois challenge, users were able 
-to understand the conditions of former slaves in the United States and honor the legacy and the progress of this group. Additionally, these sorts of 
-visualizations are crucial to understanding modern-day issues in marginalized 
-groups. From this data, we hope to learn how people engage with history and data visualization in a social media setting. 
+exposition included visualizations that described the income, wealth, employment, 
+and mobility of African Americans during this time period. By recreating these 
+visualizations through the #DuBois challenge, users were able to understand the 
+conditions of former slaves in the United States and honor the legacy and the 
+progress of this group. Additionally, these sorts of visualizations are crucial 
+to understanding modern-day issues in marginalized groups. From this data, we 
+hope to learn how people engage with history and data visualization in a social 
+media setting. 
 
 We also chose the dataset because it is comprehensive to work with. There are a 
 variety of different types of variables that can be used for analysis - logical, 
