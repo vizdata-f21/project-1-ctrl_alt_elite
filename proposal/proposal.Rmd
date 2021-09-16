@@ -8,24 +8,60 @@ output: github_document
 library(tidyverse)
 ```
 
-```{r load-data}
+```{r load-data, message = FALSE, warning = FALSE}
 tweets <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv')
 glimpse(tweets)
 ```
 
 
 ## Dataset
-For our dataset, we have chosen to examine the 2021 WEB Du Bois & Juneteenth Twitter data where each observation is a tweet and the accompanying metadata such as likes, retweets, and location. The dataset includes 13 different variables and a total of 445 observations. The data was collected via scraping from Twitter based on the presence of the WEB Du Bois challenge hashtag. 
+For our dataset, we have chosen to examine the 2021 WEB Du Bois & Juneteenth 
+Twitter data where each observation is a tweet and the accompanying metadata 
+such as likes, retweets, and location. The dataset includes 13 different 
+variables and a total of 445 observations. The data was collected via scraping 
+from Twitter based on the presence of the WEB Du Bois challenge hashtag. 
 
-We chose this dataset because we appreciate the importance of celebrating W.E.B DuBois’s legacy in data visualization. The #DuBois challenge was a Tidy Tuesday challenge that asked users to recreate his 1900 Paris Exposition today. This exposition included visualizations that described the income, wealth, employment, and mobility of African Americans during this time period. By recreating these visualizations through the #DuBois challenge, users were able to understand the conditions of former slaves in the United States and honor the legacy and the progress of this group. Additionally, these sorts of visualizations are crucial to understanding modern-day issues in marginalized groups. From this data, we hope to learn how people engage with data visualization in a social media setting.
+We chose this dataset because we appreciate the importance of celebrating W.E.B 
+DuBois’s legacy in data visualization. The #DuBois challenge was a Tidy Tuesday 
+challenge that asked users to recreate his 1900 Paris Exposition today. This 
+exposition included visualizations that described the income, wealth, 
+employment, and mobility of African Americans during this time period. By 
+recreating these visualizations through the #DuBois challenge, users were able 
+to understand the conditions of former slaves in the United States and honor the 
+legacy and the progress of this group. Additionally, these sorts of 
+visualizations are crucial to understanding modern-day issues in marginalized 
+groups. From this data, we hope to learn how people engage with history and data 
+visualization in a social media setting.
 
-We also chose the dataset because it is comprehensive to work with. There are a variety of different types of variables - logical, double, and character - and the dataset is well-cleaned. 
+We also chose the dataset because it is comprehensive to work with. There are a 
+variety of different types of variables that can be used for analysis - logical, 
+double, and character - and the dataset is well-cleaned. Since the data set is 
+extensive, we know we will be able to answer a variety of non-overlapping 
+questions that are pertinent to the world we live in today.
 
+## Questions and Analysis Plan
 
-## Questions
+### Question One
 
-The two questions you want to answer.
+The first question we want to answer is “How does general interest of the #DuBois 
+challenge vary geographically?” In order to explore this inquiry, we will use 
+the `latitude`, `longitude`, and `retweet_count `variables. To display the 
+geographical distribution of the data, we will use an external map of the world, 
+on which we will layer a scatterplot of the location of each tweet. We will use 
+the latitude and longitude variables to accomplish this, along with the world 
+map coordinates that come from the map_data() function in tidyverse. Then, we 
+will display the count of retweets for each tweet by mapping the `retweet_count` 
+variable to color, size, or another scatterplot aesthetic, such that all of the 
+information is very clearly displayed on the world map. 
 
-## Analysis plan
+### Question Two
 
-A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).
+The second question we want to answer is “How do the number of likes and 
+followers of a Twitter user vary based on user verification status?” We will use 
+the variables ‘followers’, ‘verified’ and ‘like_count’. We will map `followers` 
+to the x axis, and `like_count` to the y axis, and then display each point using 
+geom_point. Then, we will use an aesthetic such as color or shape to map the 
+verification status of the tweet author, such that viewers can easily 
+distinguish the two groups. We will also employ geom_smooth to point out 
+noticeable trend lines, and how they differ between verified and unverified users. 
+

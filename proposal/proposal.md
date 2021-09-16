@@ -11,22 +11,6 @@ library(tidyverse)
 
 ``` r
 tweets <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv')
-```
-
-    ## Rows: 445 Columns: 13
-
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr  (5): content, text, username, location, url
-    ## dbl  (6): retweet_count, like_count, quote_count, followers, lat, long
-    ## lgl  (1): verified
-    ## dttm (1): datetime
-
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 glimpse(tweets)
 ```
 
@@ -66,18 +50,40 @@ conditions of former slaves in the United States and honor the legacy
 and the progress of this group. Additionally, these sorts of
 visualizations are crucial to understanding modern-day issues in
 marginalized groups. From this data, we hope to learn how people engage
-with data visualization in a social media setting.
+with history and data visualization in a social media setting.
 
 We also chose the dataset because it is comprehensive to work with.
-There are a variety of different types of variables - logical, double,
-and character - and the dataset is well-cleaned.
+There are a variety of different types of variables that can be used for
+analysis - logical, double, and character - and the dataset is
+well-cleaned. Since the data set is extensive, we know we will be able
+to answer a variety of non-overlapping questions that are pertinent to
+the world we live in today.
 
-## Questions
+## Questions and Analysis Plan
 
-The two questions you want to answer.
+### Question One
 
-## Analysis plan
+The first question we want to answer is “How does general interest of
+the \#DuBois challenge vary geographically?” In order to explore this
+inquiry, we will use the `latitude`, `longitude`, and
+`retweet_count`variables. To display the geographical distribution of
+the data, we will use an external map of the world, on which we will
+layer a scatterplot of the location of each tweet. We will use the
+latitude and longitude variables to accomplish this, along with the
+world map coordinates that come from the map\_data() function in
+tidyverse. Then, we will display the count of retweets for each tweet by
+mapping the `retweet_count` variable to color, size, or another
+scatterplot aesthetic, such that all of the information is very clearly
+displayed on the world map.
 
-A plan for answering each of the questions including the variables
-involved, variables to be created (if any), external data to be merged
-in (if any).
+### Question Two
+
+The second question we want to answer is “How do the number of likes and
+followers of a Twitter user vary based on user verification status?” We
+will use the variables ‘followers’, ‘verified’ and ‘like\_count’. We
+will map `followers` to the x axis, and `like_count` to the y axis, and
+then display each point using geom\_point. Then, we will use an
+aesthetic such as color or shape to map the verification status of the
+tweet author, such that viewers can easily distinguish the two groups.
+We will also employ geom\_smooth to point out noticeable trend lines,
+and how they differ between verified and unverified users.
