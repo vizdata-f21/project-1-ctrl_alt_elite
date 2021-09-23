@@ -14,9 +14,9 @@ tweets <- readr::read_csv(
 
 ## Dataset
 
-Our dataset was collected from:
-
-<https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md>
+Our dataset was collected from [the tidytuesday GitHub Repository of
+DuBoisChallenge
+tweets](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md).
 
 ``` r
 glimpse(tweets)
@@ -44,6 +44,22 @@ accompanying metadata such as likes, retweets, and location. The dataset
 includes 13 different variables and a total of 445 observations. The
 data was collected via scraping from Twitter based on the presence of
 the WEB Du Bois challenge hashtag.
+
+The following variables are included in the data set:
+
+  - `datetime` (double): Date and time of tweet
+  - `content` (character): Text for tweet
+  - `retweet_count` (double): Retweet count for tweet
+  - `like_count` (double): Like count for tweet
+  - `quote_count` (double): Quote tweet count for tweet
+  - `text` (character): Where tweet was posted from
+  - `username` (character): Username of Tweeter
+  - `location` (character): Location tweeted from
+  - `followers` (double): Followers of the tweeter
+  - `url` (character): Canonical url of tweet
+  - `verified` (logical): Is user verified?
+  - `lat` (double): Latitude of user
+  - `long` (double): Longitude of user
 
 We chose this dataset because we appreciate the importance of
 celebrating W.E.B DuBois’s legacy in data visualization. The \#DuBois
