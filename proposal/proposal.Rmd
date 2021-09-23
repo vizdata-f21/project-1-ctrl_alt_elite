@@ -58,9 +58,9 @@ to understanding modern-day issues in marginalized groups. From this data, we
 hope to learn how people engage with history and data visualization in a social 
 media setting. 
 
-We also chose the dataset because it is comprehensive to work with. There are a 
+We also chose this data set due to its ease of use; there are a 
 variety of different types of variables that can be used for analysis - logical, 
-double, and character - and the dataset is well-cleaned. Since the data set is 
+double, and character - and the data is well-cleaned. Since the data set is 
 extensive, we know we will be able to answer a variety of non-overlapping 
 questions that are pertinent to the world we live in today.
 
@@ -123,7 +123,7 @@ number. This means for users who only tweeted once, we will use the like count
 for that tweet, while for users who tweeted multiple times, we will use the 
 average like count across all of their challenge tweets. Then, we will use 
 color mapping to map the verification status of the tweet author, such that 
-viewers can easily distinguish the two groups. If the colors look messy or 
-indistinguishable, we will consider faceting by verification status, instead, 
-or can also employ geom_smooth to point out noticeable trend lines, and how they 
-differ between verified and unverified users. 
+viewers can easily distinguish the two groups. Further, we'll display a 
+geom_smooth regression line for verified and unverified users. With these lines, 
+we'll be able to examine the interaction between verification & followers and 
+its effect on the number of likes a tweet can generate. 
