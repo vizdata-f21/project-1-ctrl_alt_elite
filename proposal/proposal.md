@@ -8,14 +8,14 @@ library(tidyverse)
 
 ``` r
 tweets <- readr::read_csv(
-  "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-15/tweets.csv"
+  "/home/guest/R/project-1-ctrl_alt_elite/data/tweets.csv"
 )
 ```
 
 ## Dataset
 
 Our dataset was collected from [the tidytuesday GitHub Repository of
-DuBoisChallenge
+DuBois Challenge
 tweets](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md).
 
 ``` r
@@ -40,10 +40,11 @@ glimpse(tweets)
 
 For our dataset (Tweets), we have chosen to examine the 2021 WEB Du Bois
 & Juneteenth Twitter data where each observation is a tweet that uses
-the DuBoisChallenge hastag, and the accompanying metadata such as likes,
-retweets, and location. The dataset includes 13 different variables and
-a total of 445 observations. The data was collected via scraping from
-Twitter based on the presence of the WEB Du Bois challenge hashtag.
+the DuBois Challenge hashtag, and the accompanying metadata such as
+likes, retweets, and location. The dataset includes 13 different
+variables and a total of 445 observations. The data was collected via
+scraping from Twitter based on the presence of the WEB Du Bois challenge
+hashtag.
 
 The following variables are included in the data set:
 
@@ -62,7 +63,7 @@ The following variables are included in the data set:
   - `long` (double): Longitude of user
 
 We chose this dataset because we appreciate the importance of
-celebrating W.E.B DuBois’s legacy in data visualization. The \#DuBois
+celebrating W.E.B Du Bois’s legacy in data visualization. The \#DuBois
 challenge was a Tidy Tuesday challenge that asked users to recreate his
 1900 Paris Exposition today. This exposition included visualizations
 that described the income, wealth, employment, and mobility of African
@@ -93,29 +94,31 @@ geographically?*
 We will first create a bar plot that maps `location` on the y-axis and
 the number of tweets from that location on the x-axis. This will require
 creating a new variable `location_tweet_count`. Since a user in one
-location can tweet multiple times, we will only consider one tweet per
-user to look at geographical engagement of users on this plot. We will
-also need to mutate a new variable `location_state`, based off of
-`location`, where location names are modified to either be a state in
-the United States, or categorized as an international country. If there
-happen to be many international locations in the data set from different
-counties, we will consider having two bar plots - one for U.S. states,
-and one for other countries, so that the visualization does not become
-too overcrowded. We will also need to look through the location data to
-remove any observations which do not represent actual names of
-geographical locations. By looking at this data on a bar plot, we will
-be able to compare engagement in the TidyTuesday challenge
-geographically, to see which locations produced the most number of
-tweets. The advantage of using a bar plot is that each location is very
-distinguishable from the next, and the data can be ordered such that
-it’s obvious visually which locations have many tweets, versus very
-few tweets. This will also inform our next visualization, as we will
-know which areas of the global map to emphasize.
+location can tweet multiple times, we will consider all their tweets
+cumulatively to look at geographical engagement of users on this plot.
+This is due to the fact that we consider multiple tweets by a user to be
+a sign of engagement. We will also need to mutate a new variable
+`location_state`, based off of `location`, where location names are
+modified to either be a state in the United States, or categorized as an
+international country. If there happen to be many international
+locations in the data set from different counties, we will consider
+having two bar plots - one for U.S. states, and one for other countries,
+so that the visualization does not become too overcrowded. We will also
+need to look through the location data to remove any observations which
+do not represent actual names of geographical locations. By looking at
+this data on a bar plot, we will be able to compare engagement in the
+TidyTuesday challenge geographically, to see which locations produced
+the most number of tweets. The advantage of using a bar plot is that
+each location is very distinguishable from the next, and the data can be
+ordered such that it’s obvious visually which locations have many
+tweets, versus very few tweets. This will also inform our next
+visualization, as we will know which areas of the global map to
+emphasize.
 
 In order to next explore this inquiry, we will use the `lat`, `long`,
 and `retweet_count`variables. To display the geographical distribution
 of the data, we will use an external map of the world, on which we will
-layer a scatterplot of the location of each tweet. We will use the
+layer a scatter plot of the location of each tweet. We will use the
 latitude and longitude variables to accomplish this, along with the
 world map coordinates that come from the map\_data() function in
 tidyverse. Then, we will display the count of retweets for each tweet by
@@ -123,19 +126,27 @@ mapping the `retweet_count` variable to color, size, or another
 scatterplot aesthetic, such that all of the information is very clearly
 displayed on the world map. Since it will be important to consider the
 population differences of the locations on the map when analyzing the
-occurrence of tweets, we will either include this information in our
-narrative, or color the world map by population, so that the information
-is readily available to viewers. Thus, this visualization will most
-likely employ color mapping.
+occurrence of tweets, we will create a separate heatmap of the world to
+take population discrepancies into account. Thus, this visualization
+will most likely employ color mapping.
 
 ### Question Two
 
 The second question we want to answer is:
 
-\*How does Twitter verification status affect engagement with the
-audience and their receptiveness to tweet content?
+*How does Twitter verification status affect user construction of tweets
+and how the audience reacts to those tweets?*
 
-For this first visualization, we will use the variables `followers`,
+For the first visualization, we will use `verified` and `content` to
+examine the length of tweets between verified and unverified users.
+First, we’ll compute the length of the tweet’s content and assign it to
+a numeric variable `tweet_length` . Then, we’ll create a ridge plot to
+compare the densities of tweet lengths between verified and unverified
+users. After seeing how verified users might write their tweets
+differently, we would then like to look into how users react to their
+tweets.
+
+For a second visualization, we will use the variables `followers`,
 `verified` and `like_count`. We will map `followers` to the x axis, and
 `like_count` to the y axis, and then display each point using
 geom\_point. Since some users may have tweeted multiple times, we will
@@ -143,18 +154,15 @@ take calculate `average_like_count` per tweet for each user, and use
 that number. This means for users who only tweeted once, we will use the
 like count for that tweet, while for users who tweeted multiple times,
 we will use the average like count across all of their challenge tweets.
-Then, we will use color mapping to map the verification status of the
-tweet author, such that viewers can easily distinguish the two groups.
-Further, we’ll display a geom\_smooth regression line for verified and
-unverified users. With these lines, we’ll be able to examine the
-interaction between verification & followers and its effect on the
-number of likes a tweet can generate.
+We chose to focus on individual users since in the previous
+visualization we were looking into cumulative tweets. This way, we will
+be able to gauge Twitter engagement in the Dubois challenge on a per
+user basis. Then, we will use color mapping to map the verification
+status of the tweet author, such that viewers can easily distinguish the
+two groups. Further, we’ll display a geom\_smooth regression line for
+verified and unverified users. With these lines, we’ll be able to
+examine the interaction between verification & followers and its effect
+on the number of likes a tweet can generate.
 
-#### Idea for second visualization
-
-For a second visualization, we will use `verified` and `content` to
-examine the length of tweets between verified and unverified users and
-how this length affects the tweet’s ability to spread. First, we’ll
-compute the length of the tweet’s content and assign it to a numeric
-variable `tweet_length`. Then, we’ll create a ridge plot to compare the
-densities of tweet lengths between verified and unverified users.
+We believe that by taking the various aforementioned variables into
+account, our data analysis will be comprehensive.
