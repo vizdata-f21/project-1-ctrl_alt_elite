@@ -102,17 +102,20 @@ are modified to be a state in the United States, or categorized as an
 international country. If there happen to be many international
 locations in the data set from different counties, we will consider
 having two bar plots - one for U.S. states, and one for other countries,
-so that the visualization does not become too overcrowded. We will also
-need to look through the location data to remove any observations which
-do not represent actual names of geographical locations. By looking at
-this data and organizing it on a bar plot, we will be able to compare
-engagement in the TidyTuesday challenge geographically, to see which
-locations produced the most number of tweets. The advantage of using a
-bar plot is that each location is very distinguishable from the next,
-and the data can be ordered such that it’s obvious visually which
-locations have many tweets, versus very few tweets coming from them.
-This will also inform our next visualization, as we will know which
-areas of the global map to emphasize, if need be.
+so that the visualization does not become too overcrowded. We could also
+only display the top 10 or so locations on the bar plot, if need be for
+simplification purposes (we do not want too much overwhelming info). We
+will also need to look through the location data to remove any
+observations which do not represent actual names of geographical
+locations. By looking at this data and organizing it on a bar plot, we
+will be able to compare engagement in the TidyTuesday challenge
+geographically, to see which locations produced the most number of
+tweets. The advantage of using a bar plot is that each location is very
+distinguishable from the next, and the data can be ordered such that
+it’s obvious visually which locations have many tweets, versus very
+few tweets coming from them. This will also inform our next
+visualization, as we will know which areas of the global map to
+emphasize, if need be.
 
 To next explore this inquiry, we will use the `lat`, `long`, and
 `retweet_count` variables. To display the geographical distribution of
@@ -148,10 +151,10 @@ examine the length of tweets of verified and unverified users. First,
 we’ll compute the length of each tweet’s content, operationalized by
 the number of characters, including spaces and emojis, in the tweet, and
 assign it to a numeric variable `tweet_length`. Then, we’ll create a
-ridge plot to compare the densities of tweet lengths between verified
-and unverified users. After seeing how verified users might write their
-tweets differently, we would then like to look into how users react to
-their tweets.
+ridge plot to succinctly compare the densities of tweet lengths between
+verified and unverified users. After seeing how verified users might
+write their tweets differently, we would then like to look into how
+users react to their tweets.
 
 Thus, for a second visualization, we will use the variables `followers`,
 `verified` and `like_count`. We will map `followers` to the x axis, and
@@ -178,5 +181,5 @@ between verification and followers and its effect on the number of likes
 a tweet can generate.
 
 We believe that by taking the various aforementioned variables into
-account, our data analysis will be comprehensive and take full advantage
-of the data set.
+account, our data analysis and visualizations will be comprehensive and
+take full advantage of the data set.

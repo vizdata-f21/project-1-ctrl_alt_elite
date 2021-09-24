@@ -83,7 +83,9 @@ where location names are modified to be a state in the United States, or
 categorized as an international country. If there happen to be many 
 international locations in the data set from different counties, we will 
 consider having two bar plots - one for U.S. states, and one for other 
-countries, so that the visualization does not become too overcrowded. We will 
+countries, so that the visualization does not become too overcrowded. We could 
+also only display the top 10 or so locations on the bar plot, if need be for 
+simplification purposes (we do not want too much overwhelming info). We will 
 also need to look through the location data to remove any observations which do
 not represent actual names of geographical locations. By looking at this data 
 and organizing it on a bar plot, we will be able to compare engagement in the 
@@ -124,10 +126,10 @@ For the first visualization, we will use `verified` and `content` to examine the
 length of tweets of verified and unverified users. First, we'll compute the 
 length of each tweet's content, operationalized by the number of characters, 
 including spaces and emojis, in the tweet, and assign it to a numeric variable 
-`tweet_length`. Then, we'll create a ridge plot to compare the densities of 
-tweet lengths between verified and unverified users. After seeing how verified 
-users might write their tweets differently, we would then like to look into how
-users react to their tweets. 
+`tweet_length`. Then, we'll create a ridge plot to succinctly compare the 
+densities of tweet lengths between verified and unverified users. After seeing 
+how verified users might write their tweets differently, we would then like to 
+look into how users react to their tweets. 
 
 Thus, for a second visualization, we will use the variables `followers`, 
 `verified` and `like_count`. We will map `followers` to the x axis, and 
@@ -152,4 +154,5 @@ interaction between verification and followers and its effect on the number of
 likes a tweet can generate.
 
 We believe that by taking the various aforementioned variables into account, our
-data analysis will be comprehensive and take full advantage of the data set. 
+data analysis and visualizations will be comprehensive and take full advantage 
+of the data set. 
