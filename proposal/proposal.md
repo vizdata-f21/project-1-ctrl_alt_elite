@@ -99,7 +99,7 @@ cumulatively to look at geographical engagement of users on this plot.
 This is due to the fact that we consider multiple tweets by a user to be
 a sign of engagement. We will also need to mutate a new variable
 `location_state`, based off of `location`, where location names are
-modified to either be a state in the United States, or categorized as an
+modified together be a state in the United States, or categorized as an
 international country. If there happen to be many international
 locations in the data set from different counties, we will consider
 having two bar plots - one for U.S. states, and one for other countries,

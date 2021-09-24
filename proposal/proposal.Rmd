@@ -80,20 +80,18 @@ multiple times, we will consider all their tweets cumulatively to look at
 geographical engagement of users on this plot. This is due to the fact that we 
 consider multiple tweets by a user to be a sign of engagement. We will also need
 to mutate a new variable `location_state`, based off of `location`, where 
-location names are modified to 
-either be a state in the United States, or categorized as an international 
-country. If there happen to be many international locations in the data set 
-from different counties, we will consider having two bar plots - one for U.S. 
-states, and one for other countries, so that the visualization does not become 
-too overcrowded. We will also need to look through the location data to remove 
-any observations which do not represent actual names of geographical locations. 
-By looking at this data on a bar plot, we will be able to compare engagement 
-in the TidyTuesday challenge geographically, to see which locations produced 
-the most number of tweets. The advantage of using a bar plot is that each 
-location is very distinguishable from the next, and the data can be ordered such 
-that it's obvious visually which locations have many tweets, versus very few 
-tweets. This will also inform our next visualization, as we will know which 
-areas of the global map to emphasize.
+location names are modified together be a state in the United States, 
+or categorized as an international country. If there happen to be many 
+international locations in the data set from different counties, we will 
+consider having two bar plots - one for U.S. states, and one for other 
+countries, so that the visualization does not become too overcrowded. We will 
+also need to look through the location data to remove any observations which do
+not represent actual names of geographical locations. By looking at this data on
+a bar plot, we will be able to compare engagement in the TidyTuesday challenge geographically, to see which locations produced the most number of tweets. The 
+advantage of using a bar plot is that each location is very distinguishable from
+the next, and the data can be ordered such that it's obvious visually which 
+locations have many tweets, versus very few tweets. This will also inform our 
+next visualization, as we will know which areas of the global map to emphasize.
 
 In order to next explore this inquiry, we will use the `lat`, `long`, and 
 `retweet_count `variables. To display the geographical distribution of the data, 
