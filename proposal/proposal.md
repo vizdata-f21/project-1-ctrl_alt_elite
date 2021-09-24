@@ -2,23 +2,11 @@ Project proposal
 ================
 ctrl\_alt\_elite
 
-``` r
-library(tidyverse)
-```
-
-``` r
-tweets <- read.csv("tweets_proposal.csv")
-```
-
 ## Dataset
 
-Our dataset was collected from [the tidytuesday GitHub Repository of
-DuBois Challenge
+Our dataset `tweets` was collected from [the tidytuesday GitHub
+Repository of DuBois Challenge
 tweets](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md).
-
-``` r
-glimpse(tweets)
-```
 
     ## Rows: 445
     ## Columns: 13

@@ -4,20 +4,20 @@ author: "ctrl_alt_elite"
 output: github_document
 ---
 
-```{r load-packages, message = FALSE, warning = FALSE}
+```{r load-packages, message = FALSE, warning = FALSE, echo = FALSE}
 library(tidyverse)
 ```
 
-```{r load-data, message = FALSE, warning = FALSE}
+```{r load-data, message = FALSE, warning = FALSE, echo = FALSE}
 tweets <- read.csv("tweets_proposal.csv")
 ```
 
 ## Dataset
 
-Our dataset was collected from [the tidytuesday GitHub Repository of 
+Our dataset `tweets` was collected from [the tidytuesday GitHub Repository of 
 DuBois Challenge tweets](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md).
 
-```{r glimpse-data}
+```{r glimpse-data, echo = FALSE}
 glimpse(tweets)
 ```
 
