@@ -37,12 +37,12 @@ glimpse(tweets)
     ## $ long          <dbl> -74.00602, -74.00602, -74.00602, -74.00602, -74.00602, -…
 
 For our dataset (tweets), we have chosen to examine the 2021 WEB Du Bois
-& Juneteenth Twitter data where each observation is a tweet that uses
-the DuBois Challenge hashtag, and the variables are the accompanying
-metadata such as likes, retweets, and location. The dataset includes 13
-different variables and a total of 445 observations. The data was
-collected via scraping from Twitter based on the presence of the WEB Du
-Bois challenge hashtag.
+& Juneteenth Twitter data where each observation is a tweet from 2021
+that uses the DuBoisChallenge hashtag, and the variables are the
+accompanying metadata such as likes, retweets, and location. The dataset
+includes 13 different variables and a total of 445 observations. The
+data was collected via scraping from Twitter based on the presence of
+the WEB Du Bois challenge hashtag.
 
 The following variables are included in the data set:
 
