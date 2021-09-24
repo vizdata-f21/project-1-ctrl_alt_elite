@@ -110,20 +110,30 @@ viewers. Thus, this visualization will most likely employ color mapping.
 
 The second question we want to answer is: 
 
-*How do the number of likes and followers of a #DuBois challenge Twitter user 
-vary based on user verification status?* 
+*How does Twitter verification status affect engagement with the audience and 
+their receptiveness to tweet content?
 
-ADD FIRST PLOT WE WILL DO
 
-We will use the variables `followers`, `verified` and `like_count`. We will map 
-`followers` to the x axis, and `like_count` to the y axis, and then display each 
-point using geom_point. Since some users may have tweeted multiple times, we 
-will take calculate `average_like_count` per tweet for each user, and use that 
-number. This means for users who only tweeted once, we will use the like count 
-for that tweet, while for users who tweeted multiple times, we will use the 
-average like count across all of their challenge tweets. Then, we will use 
-color mapping to map the verification status of the tweet author, such that 
-viewers can easily distinguish the two groups. Further, we'll display a 
-geom_smooth regression line for verified and unverified users. With these lines, 
-we'll be able to examine the interaction between verification & followers and 
-its effect on the number of likes a tweet can generate. 
+For this first visualization, we will use the variables `followers`, `verified` 
+and `like_count`. We will map `followers` to the x axis, and `like_count` to the
+y axis, and then display each point using geom_point. Since some users may have 
+tweeted multiple times, we will take calculate `average_like_count` per tweet 
+for each user, and use that number. This means for users who only tweeted once, 
+we will use the like count for that tweet, while for users who tweeted multiple 
+times, we will use the average like count across all of their challenge tweets. 
+Then, we will use color mapping to map the verification status of the tweet 
+author, such that viewers can easily distinguish the two groups. Further, 
+we'll display a geom_smooth regression line for verified and unverified users. 
+With these lines, we'll be able to examine the interaction between verification 
+& followers and its effect on the number of likes a tweet can generate. 
+
+#### Idea for second visualization
+For a second visualization, we will use `verified` and `content` to examine the 
+length of tweets between verified and unverified users and how this length 
+affects the tweet's ability to spread. First, we'll compute the length of the 
+tweet's content and assign it to a numeric variable `tweet_length`. Then, 
+we'll create a ridge plot to compare the densities of tweet lengths between
+verified and unverified users. 
+
+
+
