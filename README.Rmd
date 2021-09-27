@@ -77,7 +77,16 @@ areas of the global map to emphasize, if need be.
 ```{r}
 tweets %>%
   group_by(location) %>%
-  mutate(location_tweet_count = n())
+  summarize(location_tweet_count = n())
+
+tweets %>% 
+  mutate(location_state = case_when(
+    str_detect(location, "AL") ~ "AL",
+    str_detect(location, "NY") ~ "NY",
+    TRUE ~ as.character(location)
+    )) %>% 
+  group_by(location) %>%
+  summarize(location_tweet_count = n())
   
 ```
 

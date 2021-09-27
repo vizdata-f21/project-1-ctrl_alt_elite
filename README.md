@@ -110,25 +110,49 @@ emphasize, if need be.
 ``` r
 tweets %>%
   group_by(location) %>%
-  mutate(location_tweet_count = n())
+  summarize(location_tweet_count = n())
 ```
 
-    ## # A tibble: 445 × 14
-    ## # Groups:   location [102]
-    ##    datetime content retweet_count like_count quote_count text  username location
-    ##    <fct>    <fct>           <int>      <int>       <int> <fct> <fct>    <fct>   
-    ##  1 2021-05… "@sqls…             0          1           0 "<a … AlDatav… New York
-    ##  2 2021-05… "#DuBo…             0          0           0 "<a … AlDatav… New York
-    ##  3 2021-05… "#DuBo…             0          0           0 "<a … AlDatav… New York
-    ##  4 2021-05… "Was d…             0          4           0 "<a … AlDatav… New York
-    ##  5 2021-04… "@Clin…             0         11           0 "<a … AlDatav… New York
-    ##  6 2021-04… "@john…             0          0           0 "<a … etmckin… Nashvil…
-    ##  7 2021-04… "For #…             3         58           0 "<a … AdamMic… Madison…
-    ##  8 2021-04… "@zanm…             0          0           0 "<a … AlDatav… New York
-    ##  9 2021-04… "Just …             1          1           0 "<a … lisakth… Saint L…
-    ## 10 2021-04… "Honor…             1          6           0 "<a … AlDatav… New York
-    ## # … with 435 more rows, and 6 more variables: followers <int>, url <fct>,
-    ## #   verified <lgl>, lat <dbl>, long <dbl>, location_tweet_count <int>
+    ## # A tibble: 102 × 2
+    ##    location                     location_tweet_count
+    ##    <fct>                                       <int>
+    ##  1 Albuquerque, NM                                 1
+    ##  2 Amherst, MA                                     2
+    ##  3 Arlington Heights, IL                           1
+    ##  4 Arvada, CO                                      1
+    ##  5 At the home office                              2
+    ##  6 Baltimore, MD                                   2
+    ##  7 Basingstoke, England                            2
+    ##  8 Belgrade, Republic of Serbia                    1
+    ##  9 Boston, MA                                      3
+    ## 10 Buffalo, NY                                     2
+    ## # … with 92 more rows
+
+``` r
+tweets %>% 
+  mutate(location_state = case_when(
+    str_detect(location, "AL") ~ "AL",
+    str_detect(location, "NY") ~ "NY",
+    TRUE ~ as.character(location)
+    )) %>% 
+  group_by(location) %>%
+  summarize(location_tweet_count = n())
+```
+
+    ## # A tibble: 102 × 2
+    ##    location                     location_tweet_count
+    ##    <fct>                                       <int>
+    ##  1 Albuquerque, NM                                 1
+    ##  2 Amherst, MA                                     2
+    ##  3 Arlington Heights, IL                           1
+    ##  4 Arvada, CO                                      1
+    ##  5 At the home office                              2
+    ##  6 Baltimore, MD                                   2
+    ##  7 Basingstoke, England                            2
+    ##  8 Belgrade, Republic of Serbia                    1
+    ##  9 Boston, MA                                      3
+    ## 10 Buffalo, NY                                     2
+    ## # … with 92 more rows
 
 ``` r
 tweets %>%
