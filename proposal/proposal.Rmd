@@ -9,7 +9,7 @@ library(tidyverse)
 ```
 
 ```{r load-data, message = FALSE, warning = FALSE, echo = FALSE}
-tweets <- read.csv("tweets_proposal.csv")
+tweets <- read.csv("../data/tweets.csv")
 ```
 
 ## Dataset
