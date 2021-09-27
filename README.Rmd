@@ -80,10 +80,12 @@ tweets %>%
   mutate(location_tweet_count = n())
   
 ```
+
 ```{r}
 tweets %>%
   count(location) %>%
-  arrange(desc(n))
+  arrange(desc(n)) %>% 
+  head(15)
 ```
 
 
@@ -91,6 +93,32 @@ tweets %>%
 In this section, provide the code that generates your plots. Use scale functions to provide nice axis labels and guides.
 You are welcome to use theme functions to customize the appearance of your plot, but you are not required to do so.
 All plots must be made with ggplot2. Do not use base R or lattice plotting functions.
+
+To next explore this inquiry, we will use the `lat`, `long`, and `retweet_count` 
+variables. To display the geographical distribution of the data, we will use an 
+external map of the world, on which we will layer a scatter plot of the location 
+of each tweet (where it was tweeted from). We will use the latitude and 
+longitude variables to accomplish this, along with the world map coordinates 
+that come from the map_data() function in tidyverse. Then, we will display the 
+count of retweets for each tweet by mapping the `retweet_count` variable to 
+color, size, or another scatterplot aesthetic, such that all of the information 
+is very clearly displayed on the world map. Since it will be important to 
+consider the population differences of the locations on the map when analyzing 
+the occurrence of tweets, we will create a separate heatmap of the world 
+(we will use external data of the 2021 population of the world's countries), to 
+be displayed next to this map, to help readers take population discrepancies 
+into account. Thus, this visualization will most likely employ color mapping. 
+
+```{r}
+world_map <- map_data("world")
+
+ggplot() +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
+  geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
+  theme_minimal() +
+  coord_quickmap() 
+  
+```
 
 ### Discussion
 

@@ -133,112 +133,26 @@ tweets %>%
 ``` r
 tweets %>%
   count(location) %>%
-  arrange(desc(n))
+  arrange(desc(n)) %>% 
+  head(15)
 ```
 
-    ##                         location   n
-    ## 1                       New York 125
-    ## 2                           <NA>  59
-    ## 3                  Nashville, TN  33
-    ## 4                New Jersey, USA  30
-    ## 5                     Merced, CA  15
-    ## 6                Vienna, Austria  11
-    ## 7           Kevin.Elder@GCSU.edu  10
-    ## 8                    Madison, WI  10
-    ## 9                Minneapolis, MN  10
-    ## 10  iPhone: 34.704040,-86.722909  10
-    ## 11                  New York, NY   9
-    ## 12              Philadelphia, PA   5
-    ## 13               California, USA   4
-    ## 14                    Boston, MA   3
-    ## 15                     Edinburgh   3
-    ## 16                        London   3
-    ## 17                United Kingdom   3
-    ## 18                       he/they   3
-    ## 19                   Amherst, MA   2
-    ## 20            At the home office   2
-    ## 21                 Baltimore, MD   2
-    ## 22          Basingstoke, England   2
-    ## 23                   Buffalo, NY   2
-    ## 24                    Dallas, TX   2
-    ## 25                      Delaware   2
-    ## 26                Derbyshire, UK   2
-    ## 27              Forde-Obama Hall   2
-    ## 28                Nairobi, Kenya   2
-    ## 29                 New York, USA   2
-    ## 30                          Roma   2
-    ## 31               Uppsala, Sweden   2
-    ## 32                Washington, DC   2
-    ## 33                     Worldwide   2
-    ## 34               Albuquerque, NM   1
-    ## 35         Arlington Heights, IL   1
-    ## 36                    Arvada, CO   1
-    ## 37  Belgrade, Republic of Serbia   1
-    ## 38              Calgary, Alberta   1
-    ## 39                    California   1
-    ## 40                 Cambridge, MA   1
-    ## 41                      Canberra   1
-    ## 42                     Cape Town   1
-    ## 43            Caracas, Venezuela   1
-    ## 44                  Carrboro, NC   1
-    ## 45                  Catawba land   1
-    ## 46               Chapel Hill, NC   1
-    ## 47           Charlottesville, VA   1
-    ## 48                   Chicago, IL   1
-    ## 49                      Colorado   1
-    ## 50                  Columbus, OH   1
-    ## 51                    Costa Rica   1
-    ## 52                   Deutschland   1
-    ## 53      Distrito Federal, México   1
-    ## 54                    Eugene, OR   1
-    ## 55                   France & UK   1
-    ## 56                       Germany   1
-    ## 57                   God's earth   1
-    ## 58                 Hertfordshire   1
-    ## 59                Huntington, NY   1
-    ## 60                     Hurst, TX   1
-    ## 61                         India   1
-    ## 62          Jaboatão, PE, Brasil   1
-    ## 63                    Kazakhstan   1
-    ## 64             Kingston, Ontario   1
-    ## 65       Köln/Osnabrück, Germany   1
-    ## 66          Lafayette, Louisiana   1
-    ## 67                Lil’ Rudyshire   1
-    ## 68              Lisboa, Portugal   1
-    ## 69               London, England   1
-    ## 70                MIT, Cambridge   1
-    ## 71          Melbourne, Australia   1
-    ## 72                     Miami, FL   1
-    ## 73                    New Yorker   1
-    ## 74                Northridge, CA   1
-    ## 75   OAK / NYC / ATL / The World   1
-    ## 76               Ottawa, Ontario   1
-    ## 77                 Paris, France   1
-    ## 78                  Philadelphia   1
-    ## 79                  Portland, ME   1
-    ## 80                  Porto Alegre   1
-    ## 81             Querétaro, México   1
-    ## 82                            SP   1
-    ## 83         Saint Louis, Missouri   1
-    ## 84                     San Diego   1
-    ## 85                       Seattle   1
-    ## 86                   Seattle, WA   1
-    ## 87                    Shropshire   1
-    ## 88                  Stanwood, WA   1
-    ## 89        Stuttgart, Deutschland   1
-    ## 90  The City College of New York   1
-    ## 91             Toronto || Ottawa   1
-    ## 92              Toronto, Ontario   1
-    ## 93                            Tx   1
-    ## 94                            UK   1
-    ## 95            USA, Brazil, Spain   1
-    ## 96                 United States   1
-    ## 97                         World   1
-    ## 98                 York, England   1
-    ## 99      andrew.tran@washpost.com   1
-    ## 100           down in dey wid em   1
-    ## 101                     İstanbul   1
-    ## 102                         北京   1
+    ##                        location   n
+    ## 1                      New York 125
+    ## 2                          <NA>  59
+    ## 3                 Nashville, TN  33
+    ## 4               New Jersey, USA  30
+    ## 5                    Merced, CA  15
+    ## 6               Vienna, Austria  11
+    ## 7          Kevin.Elder@GCSU.edu  10
+    ## 8                   Madison, WI  10
+    ## 9               Minneapolis, MN  10
+    ## 10 iPhone: 34.704040,-86.722909  10
+    ## 11                 New York, NY   9
+    ## 12             Philadelphia, PA   5
+    ## 13              California, USA   4
+    ## 14                   Boston, MA   3
+    ## 15                    Edinburgh   3
 
 (2-3 code blocks, 2 figures, text/code comments as needed) In this
 section, provide the code that generates your plots. Use scale functions
@@ -246,6 +160,37 @@ to provide nice axis labels and guides. You are welcome to use theme
 functions to customize the appearance of your plot, but you are not
 required to do so. All plots must be made with ggplot2. Do not use base
 R or lattice plotting functions.
+
+To next explore this inquiry, we will use the `lat`, `long`, and
+`retweet_count` variables. To display the geographical distribution of
+the data, we will use an external map of the world, on which we will
+layer a scatter plot of the location of each tweet (where it was tweeted
+from). We will use the latitude and longitude variables to accomplish
+this, along with the world map coordinates that come from the
+map\_data() function in tidyverse. Then, we will display the count of
+retweets for each tweet by mapping the `retweet_count` variable to
+color, size, or another scatterplot aesthetic, such that all of the
+information is very clearly displayed on the world map. Since it will be
+important to consider the population differences of the locations on the
+map when analyzing the occurrence of tweets, we will create a separate
+heatmap of the world (we will use external data of the 2021 population
+of the world’s countries), to be displayed next to this map, to help
+readers take population discrepancies into account. Thus, this
+visualization will most likely employ color mapping.
+
+``` r
+world_map <- map_data("world")
+
+ggplot() +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
+  geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
+  theme_minimal() +
+  coord_quickmap() 
+```
+
+    ## Warning: Removed 90 rows containing missing values (geom_point).
+
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ### Discussion
 
@@ -281,7 +226,7 @@ ggplot(tweets, aes(x = tweet_length)) +
 
     ## Warning: Removed 1 rows containing non-finite values (stat_density).
 
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 tweets %>%
