@@ -1,6 +1,6 @@
 Project title
 ================
-by Team name
+Ctrl Alt Elite
 
     ## Warning in system("timedatectl", intern = TRUE): running command 'timedatectl'
     ## had status 1
@@ -178,6 +178,9 @@ tweets %>%
     ## 14                   Boston, MA   3
     ## 15                    Edinburgh   3
 
+Idea for visualization 1 is to only do data analysis for international
+places.
+
 (2-3 code blocks, 2 figures, text/code comments as needed) In this
 section, provide the code that generates your plots. Use scale functions
 to provide nice axis labels and guides. You are welcome to use theme
@@ -209,12 +212,46 @@ ggplot() +
   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
   geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
   theme_minimal() +
-  coord_quickmap() 
+  coord_fixed(1.3)
 ```
 
     ## Warning: Removed 90 rows containing missing values (geom_point).
 
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+  #coord_quickmap()
+
+
+tweets <- tweets%>%
+  mutate(continent=case_when(long < -46 & (lat>20 & lat < 46) ~ "North America", 
+                             (long > -100  & long<50) &(lat>-100 & lat <20) ~ "South America", 
+                             (long > -50  & long<60) &(lat>-50 & lat <50) ~ "Africa", 
+                             
+                            (long > 25) &(lat>-50 & lat <50) ~ "Europe", 
+                            
+                          (long > 50  & long<150) &(lat>-12.5) ~ "Asia", 
+                          
+                        (long > 100) &(lat<-12.5) ~ "Oceania"))
+```
+
+``` r
+tweets_NA<-tweets%>%
+  filter(continent=="North America")
+
+world_map <- map_data("state")
+
+ggplot() +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
+  geom_point(data = tweets_NA, aes(x = long, y = lat, size = retweet_count), color = "red") +
+  theme_minimal() +
+  coord_quickmap()
+```
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+![](README_files/figure-gfm/North_America-1.png)<!-- --> Need to remove
+3 canadian values from map.
 
 ### Discussion
 
@@ -229,6 +266,9 @@ The second question we want to answer is:
 *How does Twitter verification status affect user construction of
 \#DuBois challenge tweets and how the audience reacts to those tweets?*
 
+*How does the time of day affect user construction of \#DuBois challenge
+tweets and how the audience reacts to those tweets?*
+
 For the first visualization, we will use `verified` and `content` to
 examine the length of tweets of verified and unverified users. First,
 we’ll compute the length of each tweet’s content, operationalized by
@@ -240,15 +280,26 @@ write their tweets differently, we would then like to look into how
 users react to their tweets.
 
 ``` r
-tweets <- tweets %>%
-  mutate(tweet_length = nchar(as.character(content)))
-
-ggplot(tweets, aes(x = tweet_length)) + 
-  facet_wrap(~verified) + 
-  geom_density()
+library(lubridate)
 ```
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_density).
+    ## 
+    ## Attaching package: 'lubridate'
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     date, intersect, setdiff, union
+
+``` r
+tweets <- tweets %>%
+  filter(!is.na(datetime))%>%
+  mutate(tweet_length = nchar(as.character(content)), 
+                              time=(as.numeric(str_sub(datetime, start=12, end=13))))
+        
+
+ggplot(tweets, aes(x=time, y = tweet_length)) + 
+  geom_col()
+```
 
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
@@ -285,28 +336,25 @@ between verification and followers and its effect on the number of likes
 a tweet can generate.
 
 ``` r
-tweets %>%
+tweets <- tweets %>%
   group_by(username) %>%
   mutate(average_like_count = mean(like_count))
+
+
+tweets_time<- tweets%>%
+  mutate(time_range=case_when(time<=7~"Time 1", 
+                              time>7 & time <=15~ "Time 2", 
+                              time >15~"Time 3"))
+ggplot(tweets_time, aes(followers, average_like_count))+
+  geom_point()+
+  facet_grid(~time_range)+
+  scale_x_continuous(limits=c(0, 10000))+
+  scale_y_continuous(limits=c(0, 200))
 ```
 
-    ## # A tibble: 445 × 15
-    ## # Groups:   username [167]
-    ##    datetime content retweet_count like_count quote_count text  username location
-    ##    <fct>    <fct>           <int>      <int>       <int> <fct> <fct>    <fct>   
-    ##  1 2021-05… "@sqls…             0          1           0 "<a … AlDatav… New York
-    ##  2 2021-05… "#DuBo…             0          0           0 "<a … AlDatav… New York
-    ##  3 2021-05… "#DuBo…             0          0           0 "<a … AlDatav… New York
-    ##  4 2021-05… "Was d…             0          4           0 "<a … AlDatav… New York
-    ##  5 2021-04… "@Clin…             0         11           0 "<a … AlDatav… New York
-    ##  6 2021-04… "@john…             0          0           0 "<a … etmckin… Nashvil…
-    ##  7 2021-04… "For #…             3         58           0 "<a … AdamMic… Madison…
-    ##  8 2021-04… "@zanm…             0          0           0 "<a … AlDatav… New York
-    ##  9 2021-04… "Just …             1          1           0 "<a … lisakth… Saint L…
-    ## 10 2021-04… "Honor…             1          6           0 "<a … AlDatav… New York
-    ## # … with 435 more rows, and 7 more variables: followers <int>, url <fct>,
-    ## #   verified <lgl>, lat <dbl>, long <dbl>, tweet_length <int>,
-    ## #   average_like_count <dbl>
+    ## Warning: Removed 10 rows containing missing values (geom_point).
+
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ### Introduction
 
