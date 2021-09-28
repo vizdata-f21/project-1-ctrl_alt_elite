@@ -87,18 +87,6 @@ tweets %>%
     )) %>% 
   group_by(location) %>%
   summarize(location_tweet_count = n())
-  
-
-tweets %>% 
-  distinct(location) %>% 
-  view()
-
-# use seperate to get everything before comma, and match to list of cities, 
-# and then if its matched say its US
-# filtyer out rows where location has @ in it, and then run distinct comment 
-# again to see list of actual location
-# run str_detect for countries and code as international 
-# something more manual for case_when
 ```
 
 ```{r}
