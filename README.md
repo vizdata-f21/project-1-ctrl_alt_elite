@@ -60,6 +60,7 @@ library(lubridate)
 
 ``` r
 library(stringr)
+library(ggridges)
 # cleanFun <- function(htmlString) {
 #   return(gsub("<.*?>", "", htmlString))
 # }
@@ -313,32 +314,15 @@ tweets_time <- tweets %>%
            month == 2 ~ "February",
            month == 3 ~ "March",
            month == 4 ~ "April",
-           month == 5 ~ "May"
-         )
+           month == 5 ~ "May"),
+         month_name = fct_reorder(month_name, month)
          )
 ```
 
 ``` r
-# tweets <- tweets %>%
-#   group_by(username) %>%
-#   mutate(average_like_count = mean(like_count))
-# 
-# 
-# tweets_time<- tweets%>%
-#   mutate(time_range=case_when(time<=7~"Time 1", 
-#                               time>7 & time <=15~ "Time 2", 
-#                               time >15~"Time 3"))
-# ggplot(tweets_time, aes(followers, average_like_count))+
-#   geom_point()+
-#   facet_grid(~time_range)+
-#   scale_x_continuous(limits=c(0, 10000))+
-#   scale_y_continuous(limits=c(0, 200))
-#   
-
-# Maybe drop may b/c there's only one observation there, or add labels 
-# about # of tweets per category 
-
-ggplot(tweets_time, aes(x = month_name, y = tag_count, color = month_name)) + 
+tweets_time %>% 
+  filter(month_name != "May") %>% 
+ggplot(aes(x = month_name, y = tag_count, color = month_name)) + 
   geom_boxplot(show.legend = FALSE) +
   scale_color_colorblind() +
   scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
@@ -353,34 +337,17 @@ ggplot(tweets_time, aes(x = month_name, y = tag_count, color = month_name)) +
 <img src="README_files/figure-gfm/question-two-plot-one-1.png" width="90%" />
 
 ``` r
-ggplot(tweets_time, aes(x = date, y = like_count, color = as.factor(tag_count))) + 
-  geom_point() +
-  scale_color_colorblind() 
-```
-
-    ## Warning: This manual palette can handle a maximum of 8 values. You have supplied
-    ## 10.
-
-    ## Warning: Removed 3 rows containing missing values (geom_point).
-
-<img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
-
-``` r
 tweets_time %>% 
   filter(month_name != "May") %>% 
-ggplot(aes(x = followers, y = like_count)) + 
-  facet_wrap(~month_name, scales = "free_x", "free_y") +
-  geom_point() +
+ggplot(aes(x = like_count)) + 
+  facet_wrap(~ month_name, scales = "free_x") +
+  geom_histogram() +
   scale_color_colorblind() 
 ```
 
-    ## Warning: Coercing `nrow` to be an integer.
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-    ## Warning in sanitise_dim(nrow): NAs introduced by coercion
-
-    ## Warning: `nrow` is missing or less than 1 and will be treated as NULL.
-
-<img src="README_files/figure-gfm/unnamed-chunk-1-1.png" width="90%" />
+<img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
 \#\#\# Discussion
 
 (1-3 paragraphs) In the Discussion section, interpret the results of
