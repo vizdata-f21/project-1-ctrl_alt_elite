@@ -130,9 +130,17 @@ tweets_locations <- tweets_locations %>%
 
 grouped <- tweets_locations %>%
   count(plot_state) %>%
-  arrange(desc(n))
+  arrange(desc(n)) %>%
+  filter(plot_state != "NA") %>%
+  head(10) %>%
+  mutate(internat = case_when(
+    plot_state == "United Kingdom" ~ "International",
+    plot_state == "Austria" ~ "International",
+    TRUE ~ "Domestic"))
 
-grouped
+grouped %>%
+  ggplot(aes(y = fct_reorder(plot_state, n), x = n, fill = internat)) +
+  geom_col()
 ```
 
 ```{r}
