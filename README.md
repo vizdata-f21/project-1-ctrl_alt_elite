@@ -261,6 +261,19 @@ top_10_locations <- tweets_locations %>%
     TRUE ~ "Domestic"),
     plot_state = fct_reorder(plot_state, n),
     percent_tweets = paste(round(n / sum(n), 4) * 100, "%"))
+
+
+tweets <- tweets %>%
+  mutate(devicetype = case_when(
+    str_detect(text, "Twitter Web App") ~ "Web App",
+    str_detect(text, "Twitter for iPhone") ~ "iPhone",
+    str_detect(text, "Twitter for Android") ~ "Android",
+    str_detect(text, "Buffer") ~ "Buffer",
+    str_detect(text, "Twitter for iPad") ~ "iPad",
+    str_detect(text, "TweetDeck") ~ "TweetDeck",
+    str_detect(text, "Crowdfire App") ~ "Crowdfire App",
+    str_detect(text, "Twitter for Mac") ~ "Mac"
+  ))
 ```
 
 ``` r
