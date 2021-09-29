@@ -4,7 +4,11 @@ Each observation is a tweet from 2021 that used the #DuBoisChallenge tag and the
 variables are the accompanying metadata such as likes, retweets, and location. 
 The dataset includes 13 different variables and a total of `r nrow(tweets)` 
 observations. The data was collected via web scraping from Twitter based on the 
-presence of the WEB Du Bois challenge hashtag. 
+presence of the WEB Du Bois challenge hashtag. Authors/scrapers include Anthony 
+Starks, Allen Hillery, and Sekou Tyler.
+
+Repository link:
+[https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md]
 
 
 ## "tweets.csv"
