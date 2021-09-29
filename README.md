@@ -335,6 +335,9 @@ tweets_time <- tweets %>%
 #   scale_y_continuous(limits=c(0, 200))
 #   
 
+# Maybe drop may b/c there's only one observation there, or add labels 
+# about # of tweets per category 
+
 ggplot(tweets_time, aes(x = month_name, y = tag_count, color = month_name)) + 
   geom_boxplot(show.legend = FALSE) +
   scale_color_colorblind() +
@@ -362,7 +365,23 @@ ggplot(tweets_time, aes(x = date, y = like_count, color = as.factor(tag_count)))
 
 <img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
 
-### Discussion
+``` r
+tweets_time %>% 
+  filter(month_name != "May") %>% 
+ggplot(aes(x = followers, y = like_count)) + 
+  facet_wrap(~month_name, scales = "free_x", "free_y") +
+  geom_point() +
+  scale_color_colorblind() 
+```
+
+    ## Warning: Coercing `nrow` to be an integer.
+
+    ## Warning in sanitise_dim(nrow): NAs introduced by coercion
+
+    ## Warning: `nrow` is missing or less than 1 and will be treated as NULL.
+
+<img src="README_files/figure-gfm/unnamed-chunk-1-1.png" width="90%" />
+\#\#\# Discussion
 
 (1-3 paragraphs) In the Discussion section, interpret the results of
 your analysis. Identify any trends revealed (or not revealed) by the
