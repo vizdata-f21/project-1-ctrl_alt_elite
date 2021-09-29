@@ -81,9 +81,31 @@ us_cities <- us_cities %>%
 # create new variable city that is the location pre ,
 tweets_locations <- tweets %>% 
   filter(!str_detect(location, "@"), !str_detect(location, ":")) %>% 
-  mutate(location_pre_comma = gsub(",.*","", location))
+  mutate(location_pre_comma = gsub(",.*","", location)) %>%
+  mutate(location_pre_comma = case_when(
+    location_pre_comma == "北京" ~ "Beijing",
+    location_pre_comma == "God's earth" ~ "NA",
+    location_pre_comma == "The City College of New York" ~ "New York",
+    location_pre_comma == "World" ~ "NA",
+    location_pre_comma == "he/they" ~ "NA",
+    location_pre_comma == "At the home office" ~ "NA",
+    location_pre_comma == "Deutschland" ~ "Germany",
+    location_pre_comma == "Distrito Federal" ~ "Mexico City",
+    location_pre_comma == "down in dey wid em" ~ "NA",
+    location_pre_comma == "Forde-Obama Hall" ~ "NA",
+    location_pre_comma == "France & UK" ~ "NA",
+    location_pre_comma == "Lil’ Rudyshire" ~ "NA",
+    location_pre_comma == "MIT" ~ "Boston",
+    location_pre_comma == "New Yorker" ~ "New York",
+    location_pre_comma == "OAK / NYC / ATL / The World" ~ "NA",
+    location_pre_comma == "SP" ~ "NA",
+    location_pre_comma == "Toronto || Ottawa" ~ "NA",
+    location_pre_comma == "Tx" ~ "Texas",
+    location_pre_comma == "UK" ~ "United Kingdom",
+    location_pre_comma == "USA" ~ "United States",
+    location_pre_comma == "Worldwide" ~ "NA"
+  ))
   
-
 #Being funky, dont use this
 #left_join(tweets_locations, us_cities, by = c("city"))
 ```
