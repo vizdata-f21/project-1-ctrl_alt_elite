@@ -225,24 +225,31 @@ visualization will most likely employ color mapping.
 
 ``` r
 # Loading posible map to use
-worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                         returnclass = 'sf')
-
 world_map <- map_data("world")
 
 us_map <- map_data("state")
 
+canada_map <- map_data("world","canada")
 
-# ggplot() +
-#   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
-#   geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
-#   theme_minimal() +
-#   coord_fixed(1.3)
 
+ ggplot() +
+   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
+   geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
+   theme_minimal() +
+   coord_fixed(1.3)
+```
+
+    ## Warning: Removed 90 rows containing missing values (geom_point).
+
+![](README_files/figure-gfm/question-one-plot-two-1.png)<!-- -->
+
+``` r
   #coord_quickmap()
 
 
-tweets <- tweets%>%
+
+ 
+ tweets <- tweets%>%
   mutate(continent=case_when(long < -46 & (lat>20 & lat < 46) ~ "North America", 
                              (long > -100  & long<50) &(lat>-100 & lat <20) ~ "South America", 
                              (long > -50  & long<60) &(lat>-50 & lat <50) ~ "Africa", 
@@ -252,7 +259,26 @@ tweets <- tweets%>%
                           (long > 50  & long<150) &(lat>-12.5) ~ "Asia", 
                           
                         (long > 100) &(lat<-12.5) ~ "Oceania"))
+
+ 
+northeast <- tweets %>%
+  filter(long <= -70,
+         long >= -90,
+         lat <= 46,
+         lat >= 20)
+
+  ggplot() +
+   geom_polygon(data=canada_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
+  geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
+    geom_point(data = northeast, aes(x = long, y = lat, size = retweet_count), color = "red") +
+   theme_minimal() +
+   coord_map(xlim = c(-80, -65),
+             ylim = c(36, 46))
 ```
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+![](README_files/figure-gfm/question-one-plot-two-2.png)<!-- -->
 
 ``` r
 tweets_NA<-tweets%>%
@@ -260,15 +286,21 @@ tweets_NA<-tweets%>%
 
 
 
-# just mapping us data, need to get rid of canada
-# ggplot() +
-#   geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "white", color = "black") +
-#   geom_point(data = tweets_NA, aes(x = long, y = lat, size = retweet_count), color = "red") +
-#   theme_minimal() +
-#   coord_quickmap()
+ #just mapping us data, need to get rid of canada
+ ggplot() +
+   geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "white", color = "black") +
+   geom_point(data = tweets_NA, aes(x = long, y = lat, size = like_count)) +
+   theme_minimal() +
+   coord_quickmap()
+```
 
-north_am <- worldmap[worldmap$continent == 'North America',]
-us <- worldmap[worldmap$name == 'United States',]
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+![](README_files/figure-gfm/North_America-1.png)<!-- -->
+
+``` r
+#north_am <- worldmap[worldmap$continent == 'North America',]
+#us <- worldmap[worldmap$name == 'United States',]
 
 # New US map option
 # ggplot() + 
@@ -288,9 +320,6 @@ plots. Speculate about why the data looks the way it does.
 ## Question 2 \<- Update title to relate to the question you’re answering
 
 The second question we want to answer is:
-
-*How does Twitter verification status affect user construction of
-\#DuBois challenge tweets and how the audience reacts to those tweets?*
 
 *How does the time of day affect user construction of \#DuBois challenge
 tweets and how the audience reacts to those tweets?*
