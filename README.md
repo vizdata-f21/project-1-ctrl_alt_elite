@@ -60,10 +60,6 @@ library(lubridate)
 
 ``` r
 library(stringr)
-library(ggridges)
-# cleanFun <- function(htmlString) {
-#   return(gsub("<.*?>", "", htmlString))
-# }
 ```
 
 ``` r
@@ -88,13 +84,80 @@ dataset on the TidyTuesday repository, paraphrasing on your own terms.
 Imagine that your project is a standalone document and the grader has no
 prior knowledge of the dataset.
 
-## Question 1 \<- Update title to relate to the question you’re answering
+    ## Rows: 445
+    ## Columns: 13
+    ## $ datetime      <fct> 2021-05-07T11:42:29Z, 2021-05-06T16:14:46Z, 2021-05-06T1…
+    ## $ content       <fct> "@sqlsekou You co-hosted the #DuBoisChallenge. That had …
+    ## $ retweet_count <int> 0, 0, 0, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0,…
+    ## $ like_count    <int> 1, 0, 0, 4, 11, 0, 58, 0, 1, 6, 5, 4, 5, 4, 4, 10, 0, 0,…
+    ## $ quote_count   <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+    ## $ text          <fct> <a href="http://twitter.com/download/android" rel="nofol…
+    ## $ username      <fct> AlDatavizguy, AlDatavizguy, AlDatavizguy, AlDatavizguy, …
+    ## $ location      <fct> "New York", "New York", "New York", "New York", "New Yor…
+    ## $ followers     <int> 1113, 1113, 1113, 1113, 1113, 5413, 3097, 1113, 642, 111…
+    ## $ url           <fct> https://twitter.com/AlDatavizguy/status/1390633129203879…
+    ## $ verified      <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, …
+    ## $ lat           <dbl> 40.71273, 40.71273, 40.71273, 40.71273, 40.71273, 36.220…
+    ## $ long          <dbl> -74.00602, -74.00602, -74.00602, -74.00602, -74.00602, -…
+
+W.E.B DuBois was a famed data visualisation expert who conducted data
+analysis to challenge the racist notions regarding African Americans in
+the early 20th century. The \#DuBoisChallenge celebrates the legacy of
+W.E.B DuBois by encouraging users to creatively recreate various
+visualizations from the 1900 Paris Exposition using modern data
+visualization tools.
+
+For our dataset (tweets), we have chosen to examine the 2021 WEB Du Bois
+& Juneteenth Twitter data where each observation is a tweet from 2021
+that uses the DuBoisChallenge hashtag, and the variables are the
+accompanying metadata such as likes, retweets, and location. The dataset
+includes 13 different variables and a total of 445 observations. The
+data was collected via scraping from Twitter based on the presence of
+the WEB Du Bois challenge hashtag.
+
+The following variables are included in the data set:
+
+  - `datetime` (double): Date and time of tweet
+  - `content` (character): Text for tweet
+  - `retweet_count` (double): Retweet count for tweet
+  - `like_count` (double): Like count for tweet
+  - `quote_count` (double): Quote tweet count for tweet
+  - `text` (character): Where tweet was posted from
+  - `username` (character): Username of Tweeter
+  - `location` (character): Location tweeted from
+  - `followers` (double): Followers of the tweeter
+  - `url` (character): Canonical url of tweet
+  - `verified` (logical): Is user verified?
+  - `lat` (double): Latitude of user
+  - `long` (double): Longitude of user
+
+\#\#Geographical trends in \#DuBoisChallenge participation
+
+*How does general interest of the \#DuBoisChallenge vary
+geographically?*
 
 ### Introduction
 
 (1-2 paragraphs) Introduction to the question and what parts of the
 dataset are necessary to answer the question. Also discuss why you’re
 interested in this question.
+
+Since users in this challenge were from all across the world we wanted
+to create visualizations to gauge interest and participation by
+geographical locations. Specifically, there are 2 ways that we
+operationalized geographical locations: home location provided manually
+by the twitter user (`lat`and `long`) and the location at time of tweet
+(`location`). We wanted to quantify geographical interest by the number
+of retweets (`retweet_count`) and number of tweets coming from a given
+location (mutated variable - n), which we will use as our dependent
+variables in the 2 visualizations.
+
+The reason we were very interested in this questions is because we
+assumed that DuBois’ work would mostly be studied and know by Americans,
+as it depicts experiences of African Americans. However, since people
+are participating in the TidyTuesday challenge across the globe, we
+wanted to understand if and where there is widespread interest in
+DuBois’ work from an international perspective.
 
 ### Approach
 
@@ -104,6 +167,32 @@ why this plot (e.g. boxplot, barplot, histogram, etc.) is best for
 providing the information you are asking about. The two plots should be
 of different types, and at least one of the two plots needs to use
 either color mapping or facets.
+
+For our 1st visualization, we wanted to understand what the most popular
+locations at the time of tweets were for the \#DuBoisChallenge. To do
+so, we first cleaned the `location` column to ensure that we only had
+valid locations. For a few cases, we had to manually either drop the
+data point or rename them appropriately. After this, we added the
+corresponding state/international country for each data point in the
+`location` column. We then ranked the top 10 states/international
+countries (excluding NA’s) based on the number of total acuumulated in
+that location. To visualize this, we decided to utilize a bar plot since
+it is easy to visualize the number of tweets from locations in
+descending order. We also decided to fill the bars based on if they were
+in the US or not, which allows users to distinguish the different types
+of locations. We also decided to state the percentages on top of each
+bar plot to make it more intuitive and accessible.
+
+For our 2nd visualization, we wanted to physically map out the trends in
+terms of the home locations of the twitter users. Based on the results
+of our 1st visualization, we wanted to specifically look into the
+locations that seemed to be the most active in terms tweeting with the
+\#DuBoisChallenge. Since we had `lat` and `long`, we wanted to visualize
+these points on a map, so that we could have more precise home locations
+of the twitter users and readers can better spatially understand
+participation across the world. We also wanted to understand the sharing
+of tweets, and therefore, we sized each point on the map based on
+`retweet_count`.
 
 ### Analysis
 
