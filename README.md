@@ -111,7 +111,8 @@ us_cities <- us_cities %>%
 # create new variable city that is the location pre ,
 tweets_locations <- tweets %>% 
   filter(!str_detect(location, "@"), !str_detect(location, ":")) %>% 
-  mutate(city = gsub(",.*","", location)) 
+  mutate(location_pre_comma = gsub(",.*","", location))
+  
 
 #Being funky, dont use this
 #left_join(tweets_locations, us_cities, by = c("city"))
