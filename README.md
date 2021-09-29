@@ -2,9 +2,6 @@ Project title
 ================
 Ctrl Alt Elite
 
-    ## Warning in system("timedatectl", intern = TRUE): running command 'timedatectl'
-    ## had status 1
-
     ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
 
     ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
@@ -16,21 +13,14 @@ Ctrl Alt Elite
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
-    ## Rows: 445
-    ## Columns: 13
-    ## $ datetime      <fct> 2021-05-07T11:42:29Z, 2021-05-06T16:14:46Z, 2021-05-06T1…
-    ## $ content       <fct> "@sqlsekou You co-hosted the #DuBoisChallenge. That had …
-    ## $ retweet_count <int> 0, 0, 0, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0,…
-    ## $ like_count    <int> 1, 0, 0, 4, 11, 0, 58, 0, 1, 6, 5, 4, 5, 4, 4, 10, 0, 0,…
-    ## $ quote_count   <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-    ## $ text          <fct> <a href="http://twitter.com/download/android" rel="nofol…
-    ## $ username      <fct> AlDatavizguy, AlDatavizguy, AlDatavizguy, AlDatavizguy, …
-    ## $ location      <fct> "New York", "New York", "New York", "New York", "New Yor…
-    ## $ followers     <int> 1113, 1113, 1113, 1113, 1113, 5413, 3097, 1113, 642, 111…
-    ## $ url           <fct> https://twitter.com/AlDatavizguy/status/1390633129203879…
-    ## $ verified      <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, …
-    ## $ lat           <dbl> 40.71273, 40.71273, 40.71273, 40.71273, 40.71273, 36.220…
-    ## $ long          <dbl> -74.00602, -74.00602, -74.00602, -74.00602, -74.00602, -…
+    ## 
+    ## Attaching package: 'maps'
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     map
+
+    ## Linking to GEOS 3.8.0, GDAL 3.0.4, PROJ 6.3.1
 
 ## Introduction
 
@@ -58,26 +48,6 @@ of different types, and at least one of the two plots needs to use
 either color mapping or facets.
 
 ### Analysis
-
-``` r
-glimpse(tweets)
-```
-
-    ## Rows: 445
-    ## Columns: 13
-    ## $ datetime      <fct> 2021-05-07T11:42:29Z, 2021-05-06T16:14:46Z, 2021-05-06T1…
-    ## $ content       <fct> "@sqlsekou You co-hosted the #DuBoisChallenge. That had …
-    ## $ retweet_count <int> 0, 0, 0, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0,…
-    ## $ like_count    <int> 1, 0, 0, 4, 11, 0, 58, 0, 1, 6, 5, 4, 5, 4, 4, 10, 0, 0,…
-    ## $ quote_count   <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-    ## $ text          <fct> <a href="http://twitter.com/download/android" rel="nofol…
-    ## $ username      <fct> AlDatavizguy, AlDatavizguy, AlDatavizguy, AlDatavizguy, …
-    ## $ location      <fct> "New York", "New York", "New York", "New York", "New Yor…
-    ## $ followers     <int> 1113, 1113, 1113, 1113, 1113, 5413, 3097, 1113, 642, 111…
-    ## $ url           <fct> https://twitter.com/AlDatavizguy/status/1390633129203879…
-    ## $ verified      <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, …
-    ## $ lat           <dbl> 40.71273, 40.71273, 40.71273, 40.71273, 40.71273, 36.220…
-    ## $ long          <dbl> -74.00602, -74.00602, -74.00602, -74.00602, -74.00602, -…
 
 We will first create a bar plot that maps `location` on the y-axis and
 the number of tweets from that location on the x-axis. This will require
@@ -118,41 +88,34 @@ tweets %>%
     ##    <fct>                                       <int>
     ##  1 Albuquerque, NM                                 1
     ##  2 Amherst, MA                                     2
-    ##  3 Arlington Heights, IL                           1
-    ##  4 Arvada, CO                                      1
-    ##  5 At the home office                              2
-    ##  6 Baltimore, MD                                   2
-    ##  7 Basingstoke, England                            2
-    ##  8 Belgrade, Republic of Serbia                    1
-    ##  9 Boston, MA                                      3
-    ## 10 Buffalo, NY                                     2
+    ##  3 andrew.tran@washpost.com                        1
+    ##  4 Arlington Heights, IL                           1
+    ##  5 Arvada, CO                                      1
+    ##  6 At the home office                              2
+    ##  7 Baltimore, MD                                   2
+    ##  8 Basingstoke, England                            2
+    ##  9 Belgrade, Republic of Serbia                    1
+    ## 10 Boston, MA                                      3
     ## # … with 92 more rows
 
 ``` r
-tweets %>% 
-  mutate(location_state = case_when(
-    str_detect(location, "AL") ~ "AL",
-    str_detect(location, "NY") ~ "NY",
-    TRUE ~ as.character(location)
-    )) %>% 
-  group_by(location) %>%
-  summarize(location_tweet_count = n())
-```
+# Data frame of cities of the world and corresponding countries
+world_cities <- world.cities %>% 
+  as_tibble() %>% 
+  rename(c("city" = "name"))
 
-    ## # A tibble: 102 × 2
-    ##    location                     location_tweet_count
-    ##    <fct>                                       <int>
-    ##  1 Albuquerque, NM                                 1
-    ##  2 Amherst, MA                                     2
-    ##  3 Arlington Heights, IL                           1
-    ##  4 Arvada, CO                                      1
-    ##  5 At the home office                              2
-    ##  6 Baltimore, MD                                   2
-    ##  7 Basingstoke, England                            2
-    ##  8 Belgrade, Republic of Serbia                    1
-    ##  9 Boston, MA                                      3
-    ## 10 Buffalo, NY                                     2
-    ## # … with 92 more rows
+# Data frame of cities in US and corresponding states
+us_cities <- us_cities %>% 
+  select(city, state_id, state_name)
+
+# create new variable city that is the location pre ,
+tweets_locations <- tweets %>% 
+  filter(!str_detect(location, "@"), !str_detect(location, ":")) %>% 
+  mutate(city = gsub(",.*","", location)) 
+
+#Being funky, dont use this
+#left_join(tweets_locations, us_cities, by = c("city"))
+```
 
 ``` r
 tweets %>%
@@ -168,10 +131,10 @@ tweets %>%
     ## 4               New Jersey, USA  30
     ## 5                    Merced, CA  15
     ## 6               Vienna, Austria  11
-    ## 7          Kevin.Elder@GCSU.edu  10
-    ## 8                   Madison, WI  10
-    ## 9               Minneapolis, MN  10
-    ## 10 iPhone: 34.704040,-86.722909  10
+    ## 7  iPhone: 34.704040,-86.722909  10
+    ## 8          Kevin.Elder@GCSU.edu  10
+    ## 9                   Madison, WI  10
+    ## 10              Minneapolis, MN  10
     ## 11                 New York, NY   9
     ## 12             Philadelphia, PA   5
     ## 13              California, USA   4
@@ -206,20 +169,21 @@ readers take population discrepancies into account. Thus, this
 visualization will most likely employ color mapping.
 
 ``` r
+# Loading posible map to use
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                         returnclass = 'sf')
+
 world_map <- map_data("world")
 
-ggplot() +
-  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
-  geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
-  theme_minimal() +
-  coord_fixed(1.3)
-```
+us_map <- map_data("state")
 
-    ## Warning: Removed 90 rows containing missing values (geom_point).
 
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+# ggplot() +
+#   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
+#   geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
+#   theme_minimal() +
+#   coord_fixed(1.3)
 
-``` r
   #coord_quickmap()
 
 
@@ -239,19 +203,26 @@ tweets <- tweets%>%
 tweets_NA<-tweets%>%
   filter(continent=="North America")
 
-world_map <- map_data("state")
 
-ggplot() +
-  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
-  geom_point(data = tweets_NA, aes(x = long, y = lat, size = retweet_count), color = "red") +
-  theme_minimal() +
-  coord_quickmap()
+
+# just mapping us data, need to get rid of canada
+# ggplot() +
+#   geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "white", color = "black") +
+#   geom_point(data = tweets_NA, aes(x = long, y = lat, size = retweet_count), color = "red") +
+#   theme_minimal() +
+#   coord_quickmap()
+
+north_am <- worldmap[worldmap$continent == 'North America',]
+us <- worldmap[worldmap$name == 'United States',]
+
+# New US map option
+# ggplot() + 
+#   geom_sf(data = us) + 
+#   theme_bw() +
+#   geom_point(data = tweets_NA, aes(x = long, y = lat, size = retweet_count), color = "red") 
 ```
 
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-![](README_files/figure-gfm/North_America-1.png)<!-- --> Need to remove
-3 canadian values from map.
+Need to remove 3 canadian values from map.
 
 ### Discussion
 
@@ -301,7 +272,7 @@ ggplot(tweets, aes(x=time, y = tweet_length)) +
   geom_col()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 tweets %>%
@@ -354,7 +325,7 @@ ggplot(tweets_time, aes(followers, average_like_count))+
 
     ## Warning: Removed 10 rows containing missing values (geom_point).
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ### Introduction
 
