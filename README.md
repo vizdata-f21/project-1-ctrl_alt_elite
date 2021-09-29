@@ -48,6 +48,18 @@ library(rvest)
 
 ``` r
 library(ggthemes)
+library(lubridate)
+```
+
+    ## 
+    ## Attaching package: 'lubridate'
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     date, intersect, setdiff, union
+
+``` r
+library(stringr)
 # cleanFun <- function(htmlString) {
 #   return(gsub("<.*?>", "", htmlString))
 # }
@@ -177,7 +189,8 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
     title = "Top 10 Most Popular #DuBoisChallenge Tweet Locations",
     fill = "Location"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(text = element_text(family = "Times New Roman"))
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-one-1.png" width="90%" />
@@ -195,6 +208,7 @@ europe_tweets <- tweets %>%
 ```
 
 ``` r
+# world map/eu code taken from https://www.r-bloggers.com/2019/04/zooming-in-on-maps-with-sf-and-ggplot2/
 world_map <- ne_countries(scale = 'medium', type = 'map_units',
                          returnclass = 'sf')
 us_map <- map_data("state")
@@ -228,7 +242,8 @@ ggplot() +
        size = "Number of Retweets",
        alpha = "Number of Retweets") +
   theme_minimal() +
-  theme_void()
+  theme_void() +
+  theme(text = element_text(family = "Times New Roman"))
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" />
@@ -244,7 +259,8 @@ ggplot() +
        size = "Number of Retweets",
        alpha = "Number of Retweets") +
   theme_void() +
-  coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE)
+  coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
+  theme(text = element_text(family = "Times New Roman"))
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-two-2.png" width="90%" />
@@ -259,94 +275,8 @@ plots. Speculate about why the data looks the way it does.
 
 The second question we want to answer is:
 
-*How does the time of day affect user construction of \#DuBois challenge
-tweets and how the audience reacts to those tweets?*
-
-First, we’ll compute the length of each tweet’s content, operationalized
-by the number of characters, including spaces and emojis, in the tweet,
-and assign it to a numeric variable `tweet_length`.
-
-``` r
-library(lubridate)
-```
-
-    ## 
-    ## Attaching package: 'lubridate'
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     date, intersect, setdiff, union
-
-``` r
-# tweets <- tweets %>%
-#   filter(!is.na(datetime))%>%
-#   mutate(time = (as.numeric(str_sub(datetime, start=12, end=13))),
-#         date = ymd(str_sub(datetime, start = 1, end = 11)),
-#         content = str_replace_all(as.character(content), "&amp", ""),
-#         content = str_replace_all(as.character(content), "\\^@", ""),
-#         tweet_length = nchar(as.character(content)))
-
-#We intend to plot number of @'s in a tweet
-
-
-# tweets %>%
-#   arrange(desc(tweet_length)) %>%
-#   select(content, tweet_length) %>%
-#   head(5)
-# 
-# ggplot(tweets, aes(x=date, y = tweet_length)) + 
-#   geom_col()
-```
-
-``` r
-tweets %>%
-  filter(verified == TRUE) %>%
-  nrow()
-```
-
-    ## [1] 4
-
-Thus, for a second visualization, we will use the variables `followers`,
-`verified` and `like_count`. We will map `followers` to the x axis, and
-`like_count` to the y axis, and then display the data for each twitter
-user using geom\_point. Since some users may have tweeted multiple
-times, we will calculate `average_like_count` per tweet for each user,
-and use that number in place of the actual `like_count` variable. This
-means for users who only tweeted once, we will use the like count for
-that tweet, while for users who tweeted multiple times, we will use the
-average like count across all of their challenge tweets. We chose to
-focus on individual users since in the previous visualization we were
-looking into cumulative tweets, on a non per-user basis. This way, for
-this question, we will be able to gauge Twitter engagement in the Dubois
-challenge on a per user basis, marking a contrast between our questions.
-Then, we will use color mapping to map the verification status of the
-tweet author to the colors of the points, such that viewers can easily
-distinguish between the two groups (if the groups are not
-distinguishable, another option is to facet by verification status - we
-will make a choice about this after seeing how the data looks). Further,
-we’ll display a geom\_smooth regression line for verified and unverified
-users (if these lines become visually distracting, we will reconsider
-using them). With these lines, we’ll be able to examine the interaction
-between verification and followers and its effect on the number of likes
-a tweet can generate.
-
-``` r
-# tweets <- tweets %>%
-#   group_by(username) %>%
-#   mutate(average_like_count = mean(like_count))
-# 
-# 
-# tweets_time<- tweets%>%
-#   mutate(time_range=case_when(time<=7~"Time 1", 
-#                               time>7 & time <=15~ "Time 2", 
-#                               time >15~"Time 3"))
-# ggplot(tweets_time, aes(followers, average_like_count))+
-#   geom_point()+
-#   facet_grid(~time_range)+
-#   scale_x_continuous(limits=c(0, 10000))+
-#   scale_y_continuous(limits=c(0, 200))
-#   
-```
+*How does the tweet timing affect user construction of \#DuBois
+challenge tweets and how the audience reacts to those tweets?*
 
 ### Introduction
 
@@ -371,6 +301,66 @@ to provide nice axis labels and guides. You are welcome to use theme
 functions to customize the appearance of your plot, but you are not
 required to do so. All plots must be made with ggplot2. Do not use base
 R or lattice plotting functions.
+
+``` r
+tweets_time <- tweets %>% 
+  filter(!is.na(datetime)) %>%
+  mutate(tag_count = str_count(content, "@"),
+         time = as.numeric(str_sub(datetime, start=12, end=13)),
+         date = ymd(str_sub(datetime, start = 1, end = 11)),
+         month = month(date),
+         month_name = case_when(
+           month == 2 ~ "February",
+           month == 3 ~ "March",
+           month == 4 ~ "April",
+           month == 5 ~ "May"
+         )
+         )
+```
+
+``` r
+# tweets <- tweets %>%
+#   group_by(username) %>%
+#   mutate(average_like_count = mean(like_count))
+# 
+# 
+# tweets_time<- tweets%>%
+#   mutate(time_range=case_when(time<=7~"Time 1", 
+#                               time>7 & time <=15~ "Time 2", 
+#                               time >15~"Time 3"))
+# ggplot(tweets_time, aes(followers, average_like_count))+
+#   geom_point()+
+#   facet_grid(~time_range)+
+#   scale_x_continuous(limits=c(0, 10000))+
+#   scale_y_continuous(limits=c(0, 200))
+#   
+
+ggplot(tweets_time, aes(x = month_name, y = tag_count, color = month_name)) + 
+  geom_boxplot(show.legend = FALSE) +
+  scale_color_colorblind() +
+  scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
+  labs(
+    x = "Month Tweeted",
+    y = "Number of People Tagged",
+    title = "When #DuBoisChallenge Tweeters Tagged People"
+  ) +
+  theme(text = element_text(family = "Times New Roman"))
+```
+
+<img src="README_files/figure-gfm/question-two-plot-one-1.png" width="90%" />
+
+``` r
+ggplot(tweets_time, aes(x = date, y = like_count, color = as.factor(tag_count))) + 
+  geom_point() +
+  scale_color_colorblind() 
+```
+
+    ## Warning: This manual palette can handle a maximum of 8 values. You have supplied
+    ## 10.
+
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+<img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
 
 ### Discussion
 
