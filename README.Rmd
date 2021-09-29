@@ -11,9 +11,12 @@ library(sf)
 library(rnaturalearth)
 ```
 
-```{r load-data, echo = FALSE}
+```{r load-data-functions, echo = FALSE}
 tweets <- read.csv("data/tweets.csv")
 us_cities <- read.csv("data/uscities.csv")
+
+# credit to https://github.com/tidyverse/dplyr/issues/2278
+
 ```
 
 ## Introduction
@@ -103,11 +106,33 @@ tweets_locations <- tweets %>%
     location_pre_comma == "Tx" ~ "Texas",
     location_pre_comma == "UK" ~ "United Kingdom",
     location_pre_comma == "USA" ~ "United States",
-    location_pre_comma == "Worldwide" ~ "NA"
+    location_pre_comma == "Worldwide" ~ "NA",
+    TRUE ~ location_pre_comma
   ))
   
-#Being funky, dont use this
-#left_join(tweets_locations, us_cities, by = c("city"))
+tweets_locations <- tweets_locations %>%
+  mutate(plot_state = case_when(
+    location_pre_comma == "Nashville" ~ "Tennessee",
+    location_pre_comma =="Merced" ~ "California",
+    location_pre_comma == "Vienna" ~ "Austria",
+    location_pre_comma == "Madison" ~ "Wisconsin",
+    location_pre_comma == "Minneapolis" ~ "Minnesota",
+    location_pre_comma == "Philadelphia" ~ "Pennsylvania",
+    location_pre_comma == "Boston" ~ "Massachusetts",
+    location_pre_comma == "London" ~ "United Kingdom",
+    location_pre_comma == "Edinburgh" ~ "United Kingdom",
+    location_pre_comma == "Amherst" ~ "Massachusetts",
+    location_pre_comma == "Buffalo" ~ "New York",
+    location_pre_comma == "Cambridge" ~ "Massachusetts",
+    location_pre_comma == "San Diego" ~ "California",
+    TRUE ~ as.character(location_pre_comma)
+  ))
+
+grouped <- tweets_locations %>%
+  count(plot_state) %>%
+  arrange(desc(n))
+
+grouped
 ```
 
 ```{r}

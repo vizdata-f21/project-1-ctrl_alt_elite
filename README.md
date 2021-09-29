@@ -133,12 +133,104 @@ tweets_locations <- tweets %>%
     location_pre_comma == "Tx" ~ "Texas",
     location_pre_comma == "UK" ~ "United Kingdom",
     location_pre_comma == "USA" ~ "United States",
-    location_pre_comma == "Worldwide" ~ "NA"
+    location_pre_comma == "Worldwide" ~ "NA",
+    TRUE ~ location_pre_comma
   ))
   
-#Being funky, dont use this
-#left_join(tweets_locations, us_cities, by = c("city"))
+tweets_locations <- tweets_locations %>%
+  mutate(plot_state = case_when(
+    location_pre_comma == "Nashville" ~ "Tennessee",
+    location_pre_comma =="Merced" ~ "California",
+    location_pre_comma == "Vienna" ~ "Austria",
+    location_pre_comma == "Madison" ~ "Wisconsin",
+    location_pre_comma == "Minneapolis" ~ "Minnesota",
+    location_pre_comma == "Philadelphia" ~ "Pennsylvania",
+    location_pre_comma == "Boston" ~ "Massachusetts",
+    location_pre_comma == "London" ~ "United Kingdom",
+    location_pre_comma == "Edinburgh" ~ "United Kingdom",
+    location_pre_comma == "Amherst" ~ "Massachusetts",
+    location_pre_comma == "Buffalo" ~ "New York",
+    location_pre_comma == "Cambridge" ~ "Massachusetts",
+    location_pre_comma == "San Diego" ~ "California",
+    TRUE ~ as.character(location_pre_comma)
+  ))
+
+grouped <- tweets_locations %>%
+  count(plot_state) %>%
+  arrange(desc(n))
+
+grouped
 ```
+
+    ##           plot_state   n
+    ## 1           New York 140
+    ## 2          Tennessee  33
+    ## 3         New Jersey  30
+    ## 4         California  21
+    ## 5                 NA  17
+    ## 6            Austria  11
+    ## 7     United Kingdom  11
+    ## 8          Minnesota  10
+    ## 9          Wisconsin  10
+    ## 10     Massachusetts   7
+    ## 11      Pennsylvania   6
+    ## 12         Baltimore   2
+    ## 13       Basingstoke   2
+    ## 14            Dallas   2
+    ## 15          Delaware   2
+    ## 16        Derbyshire   2
+    ## 17           Germany   2
+    ## 18           Nairobi   2
+    ## 19              Roma   2
+    ## 20           Seattle   2
+    ## 21     United States   2
+    ## 22           Uppsala   2
+    ## 23        Washington   2
+    ## 24       Albuquerque   1
+    ## 25 Arlington Heights   1
+    ## 26            Arvada   1
+    ## 27           Beijing   1
+    ## 28          Belgrade   1
+    ## 29           Calgary   1
+    ## 30          Canberra   1
+    ## 31         Cape Town   1
+    ## 32           Caracas   1
+    ## 33          Carrboro   1
+    ## 34      Catawba land   1
+    ## 35       Chapel Hill   1
+    ## 36   Charlottesville   1
+    ## 37           Chicago   1
+    ## 38          Colorado   1
+    ## 39          Columbus   1
+    ## 40        Costa Rica   1
+    ## 41            Eugene   1
+    ## 42     Hertfordshire   1
+    ## 43        Huntington   1
+    ## 44             Hurst   1
+    ## 45             India   1
+    ## 46          İstanbul   1
+    ## 47          Jaboatão   1
+    ## 48        Kazakhstan   1
+    ## 49          Kingston   1
+    ## 50    Köln/Osnabrück   1
+    ## 51         Lafayette   1
+    ## 52            Lisboa   1
+    ## 53         Melbourne   1
+    ## 54       Mexico City   1
+    ## 55             Miami   1
+    ## 56        Northridge   1
+    ## 57            Ottawa   1
+    ## 58             Paris   1
+    ## 59          Portland   1
+    ## 60      Porto Alegre   1
+    ## 61         Querétaro   1
+    ## 62       Saint Louis   1
+    ## 63        Shropshire   1
+    ## 64          Stanwood   1
+    ## 65         Stuttgart   1
+    ## 66             Texas   1
+    ## 67           Toronto   1
+    ## 68              York   1
 
 ``` r
 tweets %>%
