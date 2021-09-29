@@ -2,6 +2,10 @@ Project title
 ================
 Ctrl Alt Elite
 
+``` r
+library(tidyverse)
+```
+
     ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
 
     ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
@@ -13,6 +17,10 @@ Ctrl Alt Elite
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
+``` r
+library(maps)
+```
+
     ## 
     ## Attaching package: 'maps'
 
@@ -20,7 +28,16 @@ Ctrl Alt Elite
     ## 
     ##     map
 
+``` r
+library(sf)
+```
+
     ## Linking to GEOS 3.8.0, GDAL 3.0.4, PROJ 6.3.1
+
+``` r
+library(rnaturalearth)
+library(rvest)
+```
 
     ## 
     ## Attaching package: 'rvest'
@@ -28,6 +45,27 @@ Ctrl Alt Elite
     ## The following object is masked from 'package:readr':
     ## 
     ##     guess_encoding
+
+``` r
+library(ggthemes)
+# cleanFun <- function(htmlString) {
+#   return(gsub("<.*?>", "", htmlString))
+# }
+```
+
+``` r
+knitr::opts_chunk$set(
+  fig.width = 8, # 8"
+  fig.asp = 0.618, # the golden ratio
+  fig.retina = 3, # dpi multiplier for displaying HTML output on retina
+  dpi = 300, # higher dpi, sharper image
+  out.width = "90%"
+)
+```
+
+``` r
+tweets <- read.csv("data/tweets.csv")
+```
 
 ## Introduction
 
@@ -56,66 +94,14 @@ either color mapping or facets.
 
 ### Analysis
 
-We will first create a bar plot that maps `location` on the y-axis and
-the number of tweets from that location on the x-axis. This will require
-creating a new variable `location_tweet_count`. As a user in one
-location can tweet multiple times, we will consider all their tweets
-cumulatively to look at total geographical engagement of users on this
-plot. This is due to the fact that we consider multiple tweets by a user
-to be a sign of engagement, and thus want to understand engagement on
-the whole, versus on a per user basis. We will also need to mutate a new
-variable `location_state`, based off of `location`, where location names
-are modified to be a state in the United States, or categorized as an
-international country. If there happen to be many international
-locations in the data set from different counties, we will consider
-having two bar plots - one for U.S. states, and one for other countries,
-so that the visualization does not become too overcrowded. We could also
-only display the top 10 or so locations on the bar plot, if need be for
-simplification purposes (we do not want too much overwhelming info). We
-will also need to look through the location data to remove any
-observations which do not represent actual names of geographical
-locations. By looking at this data and organizing it on a bar plot, we
-will be able to compare engagement in the TidyTuesday challenge
-geographically, to see which locations produced the most number of
-tweets. The advantage of using a bar plot is that each location is very
-distinguishable from the next, and the data can be ordered such that
-it’s obvious visually which locations have many tweets, versus very
-few tweets coming from them. This will also inform our next
-visualization, as we will know which areas of the global map to
-emphasize, if need be.
+(2-3 code blocks, 2 figures, text/code comments as needed) In this
+section, provide the code that generates your plots. Use scale functions
+to provide nice axis labels and guides. You are welcome to use theme
+functions to customize the appearance of your plot, but you are not
+required to do so. All plots must be made with ggplot2. Do not use base
+R or lattice plotting functions.
 
 ``` r
-tweets %>%
-  group_by(location) %>%
-  summarize(location_tweet_count = n())
-```
-
-    ## # A tibble: 102 × 2
-    ##    location                     location_tweet_count
-    ##    <fct>                                       <int>
-    ##  1 Albuquerque, NM                                 1
-    ##  2 Amherst, MA                                     2
-    ##  3 andrew.tran@washpost.com                        1
-    ##  4 Arlington Heights, IL                           1
-    ##  5 Arvada, CO                                      1
-    ##  6 At the home office                              2
-    ##  7 Baltimore, MD                                   2
-    ##  8 Basingstoke, England                            2
-    ##  9 Belgrade, Republic of Serbia                    1
-    ## 10 Boston, MA                                      3
-    ## # … with 92 more rows
-
-``` r
-# Data frame of cities of the world and corresponding countries
-world_cities <- world.cities %>% 
-  as_tibble() %>% 
-  rename(c("city" = "name"))
-
-# Data frame of cities in US and corresponding states
-us_cities <- us_cities %>% 
-  select(city, state_id, state_name)
-
-# create new variable city that is the location pre ,
 tweets_locations <- tweets %>% 
   filter(!str_detect(location, "@"), !str_detect(location, ":")) %>% 
   mutate(location_pre_comma = gsub(",.*","", location)) %>%
@@ -162,7 +148,7 @@ tweets_locations <- tweets_locations %>%
     TRUE ~ as.character(location_pre_comma)
   ))
 
-grouped <- tweets_locations %>%
+top_10_locations <- tweets_locations %>%
   count(plot_state) %>%
   arrange(desc(n)) %>%
   filter(plot_state != "NA") %>%
@@ -170,153 +156,98 @@ grouped <- tweets_locations %>%
   mutate(internat = case_when(
     plot_state == "United Kingdom" ~ "International",
     plot_state == "Austria" ~ "International",
-    TRUE ~ "Domestic"))
-
-grouped %>%
-  ggplot(aes(y = fct_reorder(plot_state, n), x = n, fill = internat)) +
-  geom_col()
+    TRUE ~ "Domestic"),
+    plot_state = fct_reorder(plot_state, n),
+    percent_tweets = paste(round(n / sum(n), 4) * 100, "%"))
 ```
 
-![](README_files/figure-gfm/question-one-plot-one-wrangling-1.png)<!-- -->
-
 ``` r
-tweets %>%
-  count(location) %>%
-  arrange(desc(n)) %>% 
-  head(15)
+ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
+  geom_col() +
+  geom_text(aes(label = percent_tweets, color = internat), 
+            size = 2.5,
+            nudge_x = 8, 
+            show.legend = FALSE) +
+  scale_fill_colorblind() +
+  scale_color_colorblind() +
+  scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
+  labs(
+    y = "Region",
+    x = "Number of Tweets",
+    title = "Top 10 Most Popular #DuBoisChallenge Tweet Locations",
+    fill = "Location"
+  ) +
+  theme_minimal()
 ```
 
-    ##                        location   n
-    ## 1                      New York 125
-    ## 2                          <NA>  59
-    ## 3                 Nashville, TN  33
-    ## 4               New Jersey, USA  30
-    ## 5                    Merced, CA  15
-    ## 6               Vienna, Austria  11
-    ## 7  iPhone: 34.704040,-86.722909  10
-    ## 8          Kevin.Elder@GCSU.edu  10
-    ## 9                   Madison, WI  10
-    ## 10              Minneapolis, MN  10
-    ## 11                 New York, NY   9
-    ## 12             Philadelphia, PA   5
-    ## 13              California, USA   4
-    ## 14                   Boston, MA   3
-    ## 15                    Edinburgh   3
-
-Idea for visualization 1 is to only do data analysis for international
-places.
-
-(2-3 code blocks, 2 figures, text/code comments as needed) In this
-section, provide the code that generates your plots. Use scale functions
-to provide nice axis labels and guides. You are welcome to use theme
-functions to customize the appearance of your plot, but you are not
-required to do so. All plots must be made with ggplot2. Do not use base
-R or lattice plotting functions.
-
-To next explore this inquiry, we will use the `lat`, `long`, and
-`retweet_count` variables. To display the geographical distribution of
-the data, we will use an external map of the world, on which we will
-layer a scatter plot of the location of each tweet (where it was tweeted
-from). We will use the latitude and longitude variables to accomplish
-this, along with the world map coordinates that come from the
-map\_data() function in tidyverse. Then, we will display the count of
-retweets for each tweet by mapping the `retweet_count` variable to
-color, size, or another scatterplot aesthetic, such that all of the
-information is very clearly displayed on the world map. Since it will be
-important to consider the population differences of the locations on the
-map when analyzing the occurrence of tweets, we will create a separate
-heatmap of the world (we will use external data of the 2021 population
-of the world’s countries), to be displayed next to this map, to help
-readers take population discrepancies into account. Thus, this
-visualization will most likely employ color mapping.
+<img src="README_files/figure-gfm/question-one-plot-one-1.png" width="90%" />
 
 ``` r
-# Loading posible map to use
-world_map <- map_data("world")
-
-us_map <- map_data("state")
-
-canada_map <- map_data("world","canada")
-
-
- ggplot() +
-   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
-   geom_point(data = tweets, aes(x = long, y = lat, size = retweet_count), color = "red") +
-   theme_minimal() +
-   coord_fixed(1.3)
-```
-
-    ## Warning: Removed 90 rows containing missing values (geom_point).
-
-![](README_files/figure-gfm/question-one-plot-two-1.png)<!-- -->
-
-``` r
-  #coord_quickmap()
-
-
-
- 
- tweets <- tweets%>%
-  mutate(continent=case_when(long < -46 & (lat>20 & lat < 46) ~ "North America", 
-                             (long > -100  & long<50) &(lat>-100 & lat <20) ~ "South America", 
-                             (long > -50  & long<60) &(lat>-50 & lat <50) ~ "Africa", 
-                             
-                            (long > 25) &(lat>-50 & lat <50) ~ "Europe", 
-                            
-                          (long > 50  & long<150) &(lat>-12.5) ~ "Asia", 
-                          
-                        (long > 100) &(lat<-12.5) ~ "Oceania"))
-
- 
-northeast <- tweets %>%
+northeast_tweets <- tweets %>%
   filter(long <= -70,
          long >= -90,
          lat <= 46,
          lat >= 20)
 
-  ggplot() +
-   geom_polygon(data=canada_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
-  geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "gray", color = "black") +
-    geom_point(data = northeast, aes(x = long, y = lat, size = retweet_count), color = "red") +
-   theme_minimal() +
-   coord_map(xlim = c(-80, -65),
-             ylim = c(36, 46))
+europe_tweets <- tweets %>% 
+  filter(long >= -20 & long <= 45,
+         lat >= 30 & lat <= 73)
 ```
-
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-![](README_files/figure-gfm/question-one-plot-two-2.png)<!-- -->
 
 ``` r
-tweets_NA<-tweets%>%
-  filter(continent=="North America")
-
-
-
- #just mapping us data, need to get rid of canada
- ggplot() +
-   geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "white", color = "black") +
-   geom_point(data = tweets_NA, aes(x = long, y = lat, size = like_count)) +
-   theme_minimal() +
-   coord_quickmap()
+world_map <- ne_countries(scale = 'medium', type = 'map_units',
+                         returnclass = 'sf')
+us_map <- map_data("state")
+canada_map <- map_data("world","canada")
 ```
-
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-![](README_files/figure-gfm/North_America-1.png)<!-- -->
 
 ``` r
-#north_am <- worldmap[worldmap$continent == 'North America',]
-#us <- worldmap[worldmap$name == 'United States',]
+# Add labels for states and Europe countries
 
-# New US map option
-# ggplot() + 
-#   geom_sf(data = us) + 
-#   theme_bw() +
-#   geom_point(data = tweets_NA, aes(x = long, y = lat, size = retweet_count), color = "red") 
+# Do we need to address showing relative populations like we said we would in 
+# proposal cause of peer feedback??
+
+# Need to address why there are so many tweets from NY twitter location but
+# based on long lat there are hardly any in NY in map
+
+ggplot() +
+  geom_polygon(data = canada_map, 
+               aes(x = long, y = lat, group = group), 
+               fill = "lightgray", 
+               color = "black") +
+  geom_polygon(data = us_map, 
+               aes(x = long, y = lat, group = group), 
+               fill = "lightgray", color = "black") +
+  geom_point(data = northeast_tweets, 
+             aes(x = long, y = lat, size = retweet_count, alpha = retweet_count), 
+             color = "red") +
+  coord_map(xlim = c(-80, -65),
+            ylim = c(36, 46)) +
+  scale_alpha_continuous(range = c(.4, 1)) +
+  labs(title = "#DuBoisChallenge Tweets in the North-East and Canada",
+       size = "Number of Retweets",
+       alpha = "Number of Retweets") +
+  theme_minimal() +
+  theme_void()
 ```
 
-Need to remove 3 canadian values from map.
+<img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" />
+
+``` r
+ggplot() + 
+  geom_sf(data = world_map, fill = "lightgray", color = "black") +
+  geom_point(data = europe_tweets, 
+             aes(x = long, y = lat, size = retweet_count, alpha = retweet_count), 
+             color = "red") +
+  scale_alpha_continuous(range = c(.4, 1)) +
+  labs(title = "#DuBoisChallenge Tweets in Europe",
+       size = "Number of Retweets",
+       alpha = "Number of Retweets") +
+  theme_void() +
+  coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE)
+```
+
+<img src="README_files/figure-gfm/question-one-plot-two-2.png" width="90%" />
 
 ### Discussion
 
