@@ -22,6 +22,13 @@ Ctrl Alt Elite
 
     ## Linking to GEOS 3.8.0, GDAL 3.0.4, PROJ 6.3.1
 
+    ## 
+    ## Attaching package: 'rvest'
+
+    ## The following object is masked from 'package:readr':
+    ## 
+    ##     guess_encoding
+
 ## Introduction
 
 (1-2 paragraphs) Brief introduction to the dataset. You may repeat some
@@ -324,15 +331,9 @@ The second question we want to answer is:
 *How does the time of day affect user construction of \#DuBois challenge
 tweets and how the audience reacts to those tweets?*
 
-For the first visualization, we will use `verified` and `content` to
-examine the length of tweets of verified and unverified users. First,
-we’ll compute the length of each tweet’s content, operationalized by
-the number of characters, including spaces and emojis, in the tweet, and
-assign it to a numeric variable `tweet_length`. Then, we’ll create a
-ridge plot to succinctly compare the densities of tweet lengths between
-verified and unverified users. After seeing how verified users might
-write their tweets differently, we would then like to look into how
-users react to their tweets.
+First, we’ll compute the length of each tweet’s content, operationalized
+by the number of characters, including spaces and emojis, in the tweet,
+and assign it to a numeric variable `tweet_length`.
 
 ``` r
 library(lubridate)
@@ -346,17 +347,25 @@ library(lubridate)
     ##     date, intersect, setdiff, union
 
 ``` r
-tweets <- tweets %>%
-  filter(!is.na(datetime))%>%
-  mutate(tweet_length = nchar(as.character(content)), 
-                              time=(as.numeric(str_sub(datetime, start=12, end=13))))
-        
+# tweets <- tweets %>%
+#   filter(!is.na(datetime))%>%
+#   mutate(time = (as.numeric(str_sub(datetime, start=12, end=13))),
+#         date = ymd(str_sub(datetime, start = 1, end = 11)),
+#         content = str_replace_all(as.character(content), "&amp", ""),
+#         content = str_replace_all(as.character(content), "\\^@", ""),
+#         tweet_length = nchar(as.character(content)))
 
-ggplot(tweets, aes(x=time, y = tweet_length)) + 
-  geom_col()
+#We intend to plot number of @'s in a tweet
+
+
+# tweets %>%
+#   arrange(desc(tweet_length)) %>%
+#   select(content, tweet_length) %>%
+#   head(5)
+# 
+# ggplot(tweets, aes(x=date, y = tweet_length)) + 
+#   geom_col()
 ```
-
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 tweets %>%
@@ -391,25 +400,22 @@ between verification and followers and its effect on the number of likes
 a tweet can generate.
 
 ``` r
-tweets <- tweets %>%
-  group_by(username) %>%
-  mutate(average_like_count = mean(like_count))
-
-
-tweets_time<- tweets%>%
-  mutate(time_range=case_when(time<=7~"Time 1", 
-                              time>7 & time <=15~ "Time 2", 
-                              time >15~"Time 3"))
-ggplot(tweets_time, aes(followers, average_like_count))+
-  geom_point()+
-  facet_grid(~time_range)+
-  scale_x_continuous(limits=c(0, 10000))+
-  scale_y_continuous(limits=c(0, 200))
+# tweets <- tweets %>%
+#   group_by(username) %>%
+#   mutate(average_like_count = mean(like_count))
+# 
+# 
+# tweets_time<- tweets%>%
+#   mutate(time_range=case_when(time<=7~"Time 1", 
+#                               time>7 & time <=15~ "Time 2", 
+#                               time >15~"Time 3"))
+# ggplot(tweets_time, aes(followers, average_like_count))+
+#   geom_point()+
+#   facet_grid(~time_range)+
+#   scale_x_continuous(limits=c(0, 10000))+
+#   scale_y_continuous(limits=c(0, 200))
+#   
 ```
-
-    ## Warning: Removed 10 rows containing missing values (geom_point).
-
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ### Introduction
 
