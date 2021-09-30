@@ -40,6 +40,10 @@ Imagine that your project is a standalone document and the grader has no prior k
 glimpse(tweets)
 ```
 
+#date and device type 
+#followers and device type 
+#faceted density plots of like count
+
 W.E.B DuBois was a famed data visualisation expert who conducted data analysis 
 to challenge the racist notions regarding African Americans in the early 20th
 century. The #DuBoisChallenge celebrates the legacy of W.E.B DuBois by 
@@ -71,9 +75,7 @@ The following variables are included in the data set:
 - `long` (double): Longitude of user
 
 
-##Geographical trends in #DuBoisChallenge participation
 
-*How does general interest of the #DuBoisChallenge vary geographically?* 
 
 ### Introduction
 
@@ -324,6 +326,18 @@ In this section, provide the code that generates your plots. Use scale functions
 You are welcome to use theme functions to customize the appearance of your plot, but you are not required to do so.
 All plots must be made with ggplot2. Do not use base R or lattice plotting functions.
 
+```{r}
+tweets %>%
+  count(devicetype)
+
+```
+
+
+
+
+
+
+
 ```{r question-two-plot-one-wrangling}
 tweets_time <- tweets %>% 
   filter(!is.na(datetime)) %>%
@@ -344,7 +358,7 @@ tweets_time <- tweets %>%
 tweets_time %>% 
   filter(month_name != "May") %>% 
 ggplot(aes(x = month_name, y = tag_count, color = month_name)) + 
-  geom_boxplot(show.legend = FALSE) +
+  geom_violin(show.legend = FALSE) +
   scale_color_colorblind() +
   scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
   labs(
@@ -363,6 +377,53 @@ ggplot(aes(x = like_count)) +
   geom_histogram() +
   scale_color_colorblind() 
 ```
+```{r}
+tweets %>%
+  mutate(tag_count = str_count(content, "@")) %>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
+ggplot(aes(x = followers)) + 
+  geom_density() + 
+  facet_wrap(.~devicetype, scales = "free_y", nrow = 3) +
+  scale_x_continuous(limit = c(0,8000))
+
+```
+
+
+```{r}
+tweets %>%
+  filter(!is.na(like_count)) %>%
+  summarise(IQR = IQR(like_count), Q1 = quantile(like_count, 0.25), Q3 = quantile(like_count, 0.75), 
+            boundary = Q3 + 2 * IQR) 
+
+tweets %>%
+  filter(like_count <= 44) %>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
+  ggplot(aes(y = like_count)) + 
+  facet_wrap(~devicetype) +
+  geom_boxplot() +
+  labs(x = "Device Type", y = "Like Count", 
+       title = "Like Count based on Device Type")
+```
+
+```{r}
+tweets %>%
+  mutate(tag_count = str_count(content, "@"),
+         time = as.numeric(str_sub(datetime, start=12, end=13)),
+         date = ymd(str_sub(datetime, start = 1, end = 11)),
+         month = month(date),
+         month_name = case_when(
+           month == 2 ~ "February",
+           month == 3 ~ "March",
+           month == 4 ~ "April",
+           month == 5 ~ "May"),
+         month_name = fct_reorder(month_name, month)
+         ) %>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
+  ggplot(aes(x = date, y = tag_count)) + 
+  facet_wrap(~month) +
+  geom_line()
+```
+
 ### Discussion
 
 (1-3 paragraphs)

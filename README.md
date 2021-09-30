@@ -100,6 +100,9 @@ prior knowledge of the dataset.
     ## $ lat           <dbl> 40.71273, 40.71273, 40.71273, 40.71273, 40.71273, 36.220…
     ## $ long          <dbl> -74.00602, -74.00602, -74.00602, -74.00602, -74.00602, -…
 
+\#date and device type \#followers and device type \#faceted density
+plots of like count
+
 W.E.B DuBois was a famed data visualisation expert who conducted data
 analysis to challenge the racist notions regarding African Americans in
 the early 20th century. The \#DuBoisChallenge celebrates the legacy of
@@ -130,11 +133,6 @@ The following variables are included in the data set:
   - `verified` (logical): Is user verified?
   - `lat` (double): Latitude of user
   - `long` (double): Longitude of user
-
-\#\#Geographical trends in \#DuBoisChallenge participation
-
-*How does general interest of the \#DuBoisChallenge vary
-geographically?*
 
 ### Introduction
 
@@ -406,6 +404,22 @@ required to do so. All plots must be made with ggplot2. Do not use base
 R or lattice plotting functions.
 
 ``` r
+tweets %>%
+  count(devicetype)
+```
+
+    ##      devicetype   n
+    ## 1       Android  25
+    ## 2        Buffer   1
+    ## 3 Crowdfire App   2
+    ## 4          iPad   7
+    ## 5        iPhone  39
+    ## 6           Mac   2
+    ## 7     TweetDeck  16
+    ## 8       Web App 352
+    ## 9          <NA>   1
+
+``` r
 tweets_time <- tweets %>% 
   filter(!is.na(datetime)) %>%
   mutate(tag_count = str_count(content, "@"),
@@ -425,7 +439,7 @@ tweets_time <- tweets %>%
 tweets_time %>% 
   filter(month_name != "May") %>% 
 ggplot(aes(x = month_name, y = tag_count, color = month_name)) + 
-  geom_boxplot(show.legend = FALSE) +
+  geom_violin(show.legend = FALSE) +
   scale_color_colorblind() +
   scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
   labs(
@@ -450,7 +464,66 @@ ggplot(aes(x = like_count)) +
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 <img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
-\#\#\# Discussion
+
+``` r
+tweets %>%
+  mutate(tag_count = str_count(content, "@")) %>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
+ggplot(aes(x = followers)) + 
+  geom_density() + 
+  facet_wrap(.~devicetype, scales = "free_y", nrow = 3) +
+  scale_x_continuous(limit = c(0,8000))
+```
+
+    ## Warning: Removed 9 rows containing non-finite values (stat_density).
+
+<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" width="90%" />
+
+``` r
+tweets %>%
+  filter(!is.na(like_count)) %>%
+  summarise(IQR = IQR(like_count), Q1 = quantile(like_count, 0.25), Q3 = quantile(like_count, 0.75), 
+            boundary = Q3 + 2 * IQR) 
+```
+
+    ##   IQR Q1 Q3 boundary
+    ## 1  14  2 16       44
+
+``` r
+tweets %>%
+  filter(like_count <= 44) %>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
+  ggplot(aes(y = like_count)) + 
+  facet_wrap(~devicetype) +
+  geom_boxplot() +
+  labs(x = "Device Type", y = "Like Count", 
+       title = "Like Count based on Device Type")
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" width="90%" />
+
+``` r
+tweets %>%
+  mutate(tag_count = str_count(content, "@"),
+         time = as.numeric(str_sub(datetime, start=12, end=13)),
+         date = ymd(str_sub(datetime, start = 1, end = 11)),
+         month = month(date),
+         month_name = case_when(
+           month == 2 ~ "February",
+           month == 3 ~ "March",
+           month == 4 ~ "April",
+           month == 5 ~ "May"),
+         month_name = fct_reorder(month_name, month)
+         ) %>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
+  ggplot(aes(x = date, y = tag_count)) + 
+  facet_wrap(~month) +
+  geom_line()
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" width="90%" />
+
+### Discussion
 
 (1-3 paragraphs) In the Discussion section, interpret the results of
 your analysis. Identify any trends revealed (or not revealed) by the
