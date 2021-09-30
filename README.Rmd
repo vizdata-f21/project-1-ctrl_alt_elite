@@ -202,7 +202,12 @@ top_10_locations <- tweets_locations %>%
       plot_state == "Wisconsin"~ "US: Midwest",
       plot_state == "Minnesota" ~ "US: Midwest"
     ),
-    plot_state = fct_reorder(plot_state, n),
+    plot_state = fct_relevel(plot_state, c("New York", "New Jersey", "Massachusetts",
+                                           "Pennsylvania","Austria", "United Kingdom",
+                                           "Minnesota",
+                                           "Wisconsin",
+                                           "Tennessee", "California" )),
+    plot_state = fct_rev(plot_state),
     percent_tweets = paste(round(n / sum(n), 4) * 100, "%")
   )
 ```
@@ -219,7 +224,7 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
   scale_color_manual(values = c("navyblue", "darkred")) +
   scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
   labs(
-    y = "Location Tweeted From",
+    y = "User Location in Twitter Bio",
     x = "Number of Tweets",
     title = "Top 10 #DuBoisChallenge Tweet Locations",
     fill = "Location"
@@ -245,7 +250,7 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
   scale_color_brewer(palette="Set1") +
   scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
   labs(
-    y = "Location Tweeted From",
+    y = "User Location in Twitter Bio",
     x = "Number of Tweets",
     title = "Top 10 #DuBoisChallenge Tweet Locations",
     fill = "Location"
@@ -283,11 +288,12 @@ us_map <- map_data("state")
 canada_map <- map_data("world", "canada")
 
 city_locations <- tribble(
-  ~City, ~Long, ~Lat,
+  ~city, ~long, ~lat,
   "NYC", 36.36, 10.8,
   "Newark", 40.7357, 74.1724,
   "Baltimore", 39.2904, 76.6122
 )
+city_locations <- data.frame(city_locations)
 ```
 
 ```{r question-one-plot-two-northeast, warning = FALSE}
@@ -295,6 +301,12 @@ city_locations <- tribble(
 
 # Do we need to address showing relative populations like we said we would in
 # proposal cause of peer feedback??
+
+set.seed(1234)
+
+# labels <- ggplot(data = city_locations, aes(x = Long, y = Lat)) +
+#   geom_point(aes(x = Long, y = Lat)) +
+#   geom_text(aes(label = City))
 
 ggplot() +
   geom_polygon(
@@ -310,20 +322,19 @@ ggplot() +
   ) +
   geom_jitter(
     data = northeast_tweets,
-    width = 0.25, height = .25,
+    width = 0.5, height = .5,
     aes(
       x = long, y = lat, size = tag_count, color = tag_count,
       alpha = tag_count
-    )
-  ) +
+    )) +   
   coord_map(
     xlim = c(-80, -65),
     ylim = c(36, 46)
   ) +
   labs(
     title = "#DuBoisChallenge Tweets",
-    subtitle = "in Northeastern U.S. & Canada",
-    caption = "Based on Long and Lat of User Home Location",
+    subtitle = "in Northeastern U.S. & Canada\n",
+    caption = "Based on Location Where Tweet Was Published",
     size = "# of Users Tagged",
     color = "# of Users Tagged",
     alpha = "# of Users Tagged"
@@ -334,20 +345,29 @@ ggplot() +
     breaks = c(0, 2, 4, 6, 8, 10)
   ) +
   scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
-  scale_alpha_continuous(range = c(.3, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.27, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
   guides(
     color = guide_legend(),
     size = guide_legend(),
     alpha = guide_legend()
   ) +
   theme(
-    legend.position = c(.8, .25),
+    legend.position = "bottom",
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.title = element_text(hjust = 0.5, face = "bold"), 
     plot.caption = element_text(hjust = 0.5),
+    panel.border = element_rect(color = "black", fill = NA, size = .75),
+    panel.background = element_rect(color = "black", fill = "lightblue"),
     text = element_text(family = "Times New Roman")
   )
 ```
 
 ```{r question-one-plot-two-europe}
+# labels_map <- world_map %>% filter(name %in% c(
+#   "Paris", "London"
+# ))
+
+
 ggplot() +
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
   geom_jitter(
@@ -357,11 +377,12 @@ ggplot() +
       alpha = tag_count
     )
   ) +
+   #geom_sf_label(data = world_map, aes(label = name), label.padding = unit(1, "mm")) +
   coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
   labs(
     title = "#DuBoisChallenge Tweets",
-    subtitle = "in Europe",
-    caption = "Based on Long and Lat of User Home Location",
+    subtitle = "in Europe\n",
+    caption = "Based on Location Where Tweet Was Published",
     size = "# of Users Tagged",
     alpha = "# of Users Tagged",
     color = "# of Users Tagged"
@@ -372,15 +393,20 @@ ggplot() +
     breaks = c(0, 2, 4, 6, 8, 10)
   ) +
   scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
-  scale_alpha_continuous(range = c(.4, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.27, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
   guides(
     color = guide_legend(),
     size = guide_legend(),
     alpha = guide_legend()
   ) +
   theme(
-    text = element_text(family = "Times New Roman"),
-    plot.caption = element_text(hjust = 0.5)
+    legend.position = "bottom",
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.title = element_text(hjust = 0.5, face = "bold"), 
+    plot.caption = element_text(hjust = 0.5),
+    panel.border = element_rect(color = "black", fill = NA, size = .75),
+    panel.background = element_rect(color = "black", fill = "lightblue"),
+    text = element_text(family = "Times New Roman")
   )
 ```
 
