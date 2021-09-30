@@ -1,7 +1,7 @@
 ---
 title: "Presentation title"
 subtitle: "Presentation subtitle (if any)"
-author: "Team name <br> Names of team members"
+author: "Ctrl Alt Elite <br> Andrew Blosse, Anna Greenleaf, Sana Pashankar, & Raghav Rasal"
 institute: "Duke University"
 date: "`r Sys.Date()`"
 output:
@@ -23,6 +23,17 @@ library(tidymodels)
 library(palmerpenguins)
 library(knitr)
 library(xaringanthemer)
+
+library(tidyverse)
+library(maps)
+library(sf)
+library(rnaturalearth)
+library(rvest)
+library(ggthemes)
+library(lubridate)
+library(stringr)
+library(colorspace)
+library(scales)
 ```
 
 ```{r setup, include=FALSE}
@@ -61,7 +72,7 @@ class: inverse, middle, center
 
 ---
 
-## Question 1 (Fill in)
+## How does general interest of the #DuBois challenge vary geographically?
 
 You can use plain text
 
@@ -92,24 +103,318 @@ glance(model)
 
 ---
 
-## Plots
+## Plot One
+
+```{r question-one-plot-one-wrangling, echo = FALSE}
+tweets_locations <- tweets %>%
+  filter(!str_detect(location, "@"), !str_detect(location, ":")) %>%
+  mutate(location_pre_comma = gsub(",.*", "", location)) %>%
+  mutate(location_pre_comma = case_when(
+    location_pre_comma == "北京" ~ "Beijing",
+    location_pre_comma == "God's earth" ~ "NA",
+    location_pre_comma == "The City College of New York" ~ "New York",
+    location_pre_comma == "World" ~ "NA",
+    location_pre_comma == "he/they" ~ "NA",
+    location_pre_comma == "At the home office" ~ "NA",
+    location_pre_comma == "Deutschland" ~ "Germany",
+    location_pre_comma == "Distrito Federal" ~ "Mexico City",
+    location_pre_comma == "down in dey wid em" ~ "NA",
+    location_pre_comma == "Forde-Obama Hall" ~ "NA",
+    location_pre_comma == "France & UK" ~ "NA",
+    location_pre_comma == "Lil’ Rudyshire" ~ "NA",
+    location_pre_comma == "MIT" ~ "Boston",
+    location_pre_comma == "New Yorker" ~ "New York",
+    location_pre_comma == "OAK / NYC / ATL / The World" ~ "NA",
+    location_pre_comma == "SP" ~ "NA",
+    location_pre_comma == "Toronto || Ottawa" ~ "NA",
+    location_pre_comma == "Tx" ~ "Texas",
+    location_pre_comma == "UK" ~ "United Kingdom",
+    location_pre_comma == "USA" ~ "United States",
+    location_pre_comma == "Worldwide" ~ "NA",
+    TRUE ~ location_pre_comma
+  ))
+
+tweets_locations <- tweets_locations %>%
+  mutate(plot_state = case_when(
+    location_pre_comma == "Nashville" ~ "Tennessee",
+    location_pre_comma == "Merced" ~ "California",
+    location_pre_comma == "Vienna" ~ "Austria",
+    location_pre_comma == "Madison" ~ "Wisconsin",
+    location_pre_comma == "Minneapolis" ~ "Minnesota",
+    location_pre_comma == "Philadelphia" ~ "Pennsylvania",
+    location_pre_comma == "Boston" ~ "Massachusetts",
+    location_pre_comma == "London" ~ "United Kingdom",
+    location_pre_comma == "Edinburgh" ~ "United Kingdom",
+    location_pre_comma == "Amherst" ~ "Massachusetts",
+    location_pre_comma == "Buffalo" ~ "New York",
+    location_pre_comma == "Cambridge" ~ "Massachusetts",
+    location_pre_comma == "San Diego" ~ "California",
+    TRUE ~ as.character(location_pre_comma)
+  ))
+
+top_10_locations <- tweets_locations %>%
+  count(plot_state) %>%
+  arrange(desc(n)) %>%
+  filter(plot_state != "NA") %>%
+  head(10) %>%
+  mutate(
+    internat = case_when(
+      plot_state == "United Kingdom" ~ "International",
+      plot_state == "Austria" ~ "International",
+      TRUE ~ "Domestic"
+    ),
+    plot_state = fct_reorder(plot_state, n),
+    percent_tweets = paste(round(n / sum(n), 4) * 100, "%")
+  )
+```
+
+```{r question-one-plot-one, echo = FALSE, out.width = "80%"}
+ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
+  geom_col() +
+  geom_text(aes(label = percent_tweets, color = internat),
+    size = 2.5,
+    nudge_x = 8,
+    show.legend = FALSE
+  ) +
+  scale_fill_manual(values = c("navyblue", "darkred")) +
+  scale_color_manual(values = c("navyblue", "darkred")) +
+  scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
+  labs(
+    y = "Location Tweeted From",
+    x = "Number of Tweets",
+    title = "Top 10 #DuBoisChallenge Tweet Locations",
+    fill = "Location"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(.85, .17) 
+  )
+```
+
+---
+
+## Plot Two
+
+```{r question-one-plot-two-wrangling, echo = FALSE}
+tweets <- tweets %>%
+  mutate(tag_count = str_count(content, "@"))
+
+northeast_tweets <- tweets %>%
+  filter(
+    long <= -70,
+    long >= -90,
+    lat <= 46,
+    lat >= 20
+  )
+europe_tweets <- tweets %>%
+  filter(
+    long >= -20 & long <= 45,
+    lat >= 30 & lat <= 73
+  )
+
+world_map <- ne_countries(
+  scale = "medium", type = "map_units",
+  returnclass = "sf"
+)
+us_map <- map_data("state")
+canada_map <- map_data("world", "canada")
+
+city_locations <- tribble(
+  ~City, ~Long, ~Lat,
+  "NYC", 36.36, 10.8,
+  "Newark", 40.7357, 74.1724,
+  "Baltimore", 39.2904, 76.6122
+)
+```
+
+
+```{r question-one-plot-two-northeast, warning = FALSE, echo = FALSE, out.width = "72%"}
+# Add labels for states and Europe countries
+
+# Do we need to address showing relative populations like we said we would in
+# proposal cause of peer feedback??
+
+ggplot() +
+  geom_polygon(
+    data = canada_map,
+    aes(x = long, y = lat, group = group),
+    fill = "#F0F0F0",
+    color = "black"
+  ) +
+  geom_polygon(
+    data = us_map,
+    aes(x = long, y = lat, group = group),
+    fill = "#F0F0F0", color = "black"
+  ) +
+  geom_jitter(
+    data = northeast_tweets,
+    width = 0.25, height = .25,
+    aes(
+      x = long, y = lat, size = tag_count, color = tag_count,
+      alpha = tag_count
+    )
+  ) +
+  coord_map(
+    xlim = c(-80, -65),
+    ylim = c(36, 46)
+  ) +
+  labs(
+    title = "#DuBoisChallenge Tweets",
+    subtitle = "in Northeastern U.S. & Canada",
+    caption = "Based on Long and Lat of User Home Location",
+    size = "# of Users Tagged",
+    color = "# of Users Tagged",
+    alpha = "# of Users Tagged"
+  ) +
+  theme_void() +
+  scale_color_continuous_sequential(
+    palette = "OrYel", rev = FALSE,
+    breaks = c(0, 2, 4, 6, 8, 10)
+  ) +
+  scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.3, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  guides(
+    color = guide_legend(),
+    size = guide_legend(),
+    alpha = guide_legend()
+  ) +
+  theme(
+    legend.position = c(.8, .25),
+    plot.caption = element_text(hjust = 0.5)
+  )
+```
+
+---
+
+```{r question-one-plot-two-europe, echo = FALSE, out.width = "80%"}
+ggplot() +
+  geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
+  geom_jitter(
+    data = europe_tweets,
+    aes(
+      x = long, y = lat, size = tag_count, color = tag_count,
+      alpha = tag_count
+    )
+  ) +
+  coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
+  labs(
+    title = "#DuBoisChallenge Tweets",
+    subtitle = "in Europe",
+    caption = "Based on Long and Lat of User Home Location",
+    size = "# of Users Tagged",
+    alpha = "# of Users Tagged",
+    color = "# of Users Tagged"
+  ) +
+  theme_void() +
+  scale_color_continuous_sequential(
+    palette = "OrYel", rev = FALSE,
+    breaks = c(0, 2, 4, 6, 8, 10)
+  ) +
+  scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.4, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  guides(
+    color = guide_legend(),
+    size = guide_legend(),
+    alpha = guide_legend()
+  ) +
+  theme(
+    plot.caption = element_text(hjust = 0.5)
+  )
+```
+
 
 ```{r recode-species, echo = FALSE}
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-penguins_modified <- penguins %>%
-  mutate(species = fct_other(species, keep = "Adelie"))
+# # In this chunk I'm doing a bunch of analysis that I don't want to present 
+# # in my slides. But I need the resulting data frame for a plot I want to present.
+# penguins_modified <- penguins %>%
+#   mutate(species = fct_other(species, keep = "Adelie"))
+# ```
+# 
+# ```{r plot-penguins, echo = FALSE, warning = FALSE, fig.alt = "Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins."}
+# # Code hidden with echo = FALSE
+# # Uses modified penguins dataset from previous chunk
+# # Play around with height and width until you're happy with the look
+# ggplot(penguins_modified, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+#   geom_point() + 
+#   theme_minimal()
 ```
 
-```{r plot-penguins, echo = FALSE, warning = FALSE, fig.alt = "Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins."}
-# Code hidden with echo = FALSE
-# Uses modified penguins dataset from previous chunk
-# Play around with height and width until you're happy with the look
-ggplot(penguins_modified, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
-  geom_point() + 
-  theme_minimal()
+---
+.pull-left[
+```{r question-two-plot-one-wrangling, echo = FALSE}
+tweets <- tweets %>%
+  mutate(devicetype = case_when(
+    str_detect(text, "Twitter Web App") ~ "Web App",
+    str_detect(text, "Twitter for iPhone") ~ "iPhone",
+    str_detect(text, "Twitter for Android") ~ "Android",
+    str_detect(text, "Buffer") ~ "Buffer",
+    str_detect(text, "Twitter for iPad") ~ "iPad",
+    str_detect(text, "TweetDeck") ~ "TweetDeck",
+    str_detect(text, "Crowdfire App") ~ "Crowdfire App",
+    str_detect(text, "Twitter for Mac") ~ "Mac"))
+
+tweets_device <- tweets %>% 
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")
 ```
 
+```{r question-two-plot-one, warning = FALSE, echo = FALSE, out.width = "100%"}
+# warning = FALSE: purposefully set x bounds to remove outlier data points
+ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
+  geom_density(show.legend = FALSE) +
+  facet_wrap(. ~ devicetype, scales = "free_y", nrow = 3) +
+  theme_minimal() +
+  scale_x_continuous(
+    breaks = seq(0, 8000, 1000), limit = c(0, 8000),
+    labels = label_number(big.mark = ",")
+  ) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  scale_y_continuous(labels = label_number(accuracy = .00001)) +
+  labs(
+    title = "Distribution of Follower Count",
+    subtitle = "Stratified by Where Tweet Was Posted From",
+    x = "Number of Followers",
+    y = NULL
+  ) 
+```
+]
+
+.pull-right[
+```{r question-two-plot-two-wrangling, echo = FALSE}
+outliers <- tweets_device %>%
+  filter(!is.na(like_count)) %>%
+  group_by(devicetype) %>%
+  summarise(
+    IQR = IQR(like_count),
+    Q1 = quantile(like_count, 0.25),
+    Q3 = quantile(like_count, 0.75),
+    farboundary = Q3 + 2 * IQR,
+    upper_out = Q3 + 1.5 * IQR,
+    lower_out = Q1 - 1.5 * IQR
+  )
+
+tweets_likes <- tweets_device %>%
+  filter(like_count <= round(outliers$farboundary[3]))
+```
+
+```{r question-two-plot-two, echo = FALSE, out.width = "100%"}
+ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
+  facet_wrap(~devicetype) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  labs(
+    x = NULL, y = "Number of Likes",
+    title = "Distribution of Likes",
+    subtitle = "Stratified by Where Tweet Was Posted From",
+    caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+]
 ---
 
 ## Plot and text
