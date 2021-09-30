@@ -77,10 +77,10 @@ library(scales)
 
 ``` r
 knitr::opts_chunk$set(
-  fig.width = 8, # 8"
-  fig.asp = 0.618, # the golden ratio
-  fig.retina = 3, # dpi multiplier for displaying HTML output on retina
-  dpi = 300, # higher dpi, sharper image
+  fig.width = 8,
+  fig.asp = 0.618,
+  fig.retina = 3,
+  dpi = 300,
   out.width = "90%"
 )
 ```
@@ -112,9 +112,6 @@ prior knowledge of the dataset.
     ## $ verified      <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, …
     ## $ lat           <dbl> 40.71273, 40.71273, 40.71273, 40.71273, 40.71273, 36.220…
     ## $ long          <dbl> -74.00602, -74.00602, -74.00602, -74.00602, -74.00602, -…
-
-\#date and device type \#followers and device type \#faceted density
-plots of like count
 
 W.E.B DuBois was a famed data visualisation expert who conducted data
 analysis to challenge the racist notions regarding African Americans in
@@ -215,9 +212,9 @@ required to do so. All plots must be made with ggplot2. Do not use base
 R or lattice plotting functions.
 
 ``` r
-tweets_locations <- tweets %>% 
-  filter(!str_detect(location, "@"), !str_detect(location, ":")) %>% 
-  mutate(location_pre_comma = gsub(",.*","", location)) %>%
+tweets_locations <- tweets %>%
+  filter(!str_detect(location, "@"), !str_detect(location, ":")) %>%
+  mutate(location_pre_comma = gsub(",.*", "", location)) %>%
   mutate(location_pre_comma = case_when(
     location_pre_comma == "北京" ~ "Beijing",
     location_pre_comma == "God's earth" ~ "NA",
@@ -242,11 +239,11 @@ tweets_locations <- tweets %>%
     location_pre_comma == "Worldwide" ~ "NA",
     TRUE ~ location_pre_comma
   ))
-  
+
 tweets_locations <- tweets_locations %>%
   mutate(plot_state = case_when(
     location_pre_comma == "Nashville" ~ "Tennessee",
-    location_pre_comma =="Merced" ~ "California",
+    location_pre_comma == "Merced" ~ "California",
     location_pre_comma == "Vienna" ~ "Austria",
     location_pre_comma == "Madison" ~ "Wisconsin",
     location_pre_comma == "Minneapolis" ~ "Minnesota",
@@ -266,37 +263,25 @@ top_10_locations <- tweets_locations %>%
   arrange(desc(n)) %>%
   filter(plot_state != "NA") %>%
   head(10) %>%
-  mutate(internat = case_when(
-    plot_state == "United Kingdom" ~ "International",
-    plot_state == "Austria" ~ "International",
-    TRUE ~ "Domestic"),
+  mutate(
+    internat = case_when(
+      plot_state == "United Kingdom" ~ "International",
+      plot_state == "Austria" ~ "International",
+      TRUE ~ "Domestic"
+    ),
     plot_state = fct_reorder(plot_state, n),
-    percent_tweets = paste(round(n / sum(n), 4) * 100, "%"))
-
-
-tweets <- tweets %>%
-  mutate(devicetype = case_when(
-    str_detect(text, "Twitter Web App") ~ "Web App",
-    str_detect(text, "Twitter for iPhone") ~ "iPhone",
-    str_detect(text, "Twitter for Android") ~ "Android",
-    str_detect(text, "Buffer") ~ "Buffer",
-    str_detect(text, "Twitter for iPad") ~ "iPad",
-    str_detect(text, "TweetDeck") ~ "TweetDeck",
-    str_detect(text, "Crowdfire App") ~ "Crowdfire App",
-    str_detect(text, "Twitter for Mac") ~ "Mac"
-  ))
-
-tweets <- tweets %>%
-  mutate(tag_count = str_count(content, "@"))
+    percent_tweets = paste(round(n / sum(n), 4) * 100, "%")
+  )
 ```
 
 ``` r
 ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
   geom_col() +
-  geom_text(aes(label = percent_tweets, color = internat), 
-            size = 2.5,
-            nudge_x = 8, 
-            show.legend = FALSE) +
+  geom_text(aes(label = percent_tweets, color = internat),
+    size = 2.5,
+    nudge_x = 8,
+    show.legend = FALSE
+  ) +
   scale_fill_manual(values = c("navyblue", "darkred")) +
   scale_color_manual(values = c("navyblue", "darkred")) +
   scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
@@ -307,30 +292,38 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
     fill = "Location"
   ) +
   theme_minimal() +
-  theme(text = element_text(family = "Times New Roman"),
-        legend.title = element_blank())
+  theme(
+    text = element_text(family = "Times New Roman"),
+    legend.title = element_blank(),
+    legend.position = c(.85, .17) 
+  )
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-one-1.png" width="90%" />
 
 ``` r
+tweets <- tweets %>%
+  mutate(tag_count = str_count(content, "@"))
+
 northeast_tweets <- tweets %>%
-  filter(long <= -70,
-         long >= -90,
-         lat <= 46,
-         lat >= 20)
+  filter(
+    long <= -70,
+    long >= -90,
+    lat <= 46,
+    lat >= 20
+  )
+europe_tweets <- tweets %>%
+  filter(
+    long >= -20 & long <= 45,
+    lat >= 30 & lat <= 73
+  )
 
-europe_tweets <- tweets %>% 
-  filter(long >= -20 & long <= 45,
-         lat >= 30 & lat <= 73)
-```
-
-``` r
-# world map/eu code taken from https://www.r-bloggers.com/2019/04/zooming-in-on-maps-with-sf-and-ggplot2/
-world_map <- ne_countries(scale = 'medium', type = 'map_units',
-                         returnclass = 'sf')
+world_map <- ne_countries(
+  scale = "medium", type = "map_units",
+  returnclass = "sf"
+)
 us_map <- map_data("state")
-canada_map <- map_data("world","canada")
+canada_map <- map_data("world", "canada")
 
 city_locations <- tribble(
   ~City, ~Long, ~Lat,
@@ -343,73 +336,100 @@ city_locations <- tribble(
 ``` r
 # Add labels for states and Europe countries
 
-# Do we need to address showing relative populations like we said we would in 
+# Do we need to address showing relative populations like we said we would in
 # proposal cause of peer feedback??
 
-# Need to address why there are so many tweets from NY twitter location but
-# based on long lat there are hardly any in NY in map
-
 ggplot() +
-  geom_polygon(data = canada_map, 
-               aes(x = long, y = lat, group = group), 
-               fill = "#F0F0F0", 
-               color = "black") +
-  geom_polygon(data = us_map, 
-               aes(x = long, y = lat, group = group), 
-               fill = "#F0F0F0", color = "black") +
-  geom_jitter(data = northeast_tweets, 
-              width = 0.25, height = .25,
-             aes(x = long, y = lat, size = tag_count, color = tag_count,
-                 alpha = tag_count)) +
-  coord_map(xlim = c(-80, -65),
-            ylim = c(36, 46)
-            ) +
-  labs(title = "#DuBoisChallenge Tweets",
-       subtitle = "in Northeastern U.S. & Canada",
-       size = "# of Users Tagged",
-       color = "# of Users Tagged",
-       alpha = "# of Users Tagged") +
-       #caption = "Long and Lat Based on User Home Location") +
+  geom_polygon(
+    data = canada_map,
+    aes(x = long, y = lat, group = group),
+    fill = "#F0F0F0",
+    color = "black"
+  ) +
+  geom_polygon(
+    data = us_map,
+    aes(x = long, y = lat, group = group),
+    fill = "#F0F0F0", color = "black"
+  ) +
+  geom_jitter(
+    data = northeast_tweets,
+    width = 0.25, height = .25,
+    aes(
+      x = long, y = lat, size = tag_count, color = tag_count,
+      alpha = tag_count
+    )
+  ) +
+  coord_map(
+    xlim = c(-80, -65),
+    ylim = c(36, 46)
+  ) +
+  labs(
+    title = "#DuBoisChallenge Tweets",
+    subtitle = "in Northeastern U.S. & Canada",
+    caption = "Based on Long and Lat of User Home Location",
+    size = "# of Users Tagged",
+    color = "# of Users Tagged",
+    alpha = "# of Users Tagged"
+  ) +
   theme_void() +
-  theme(text = element_text(family = "Times New Roman")) +
-  scale_color_continuous_sequential(palette = "OrYel", rev = FALSE,
-                                    breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_color_continuous_sequential(
+    palette = "OrYel", rev = FALSE,
+    breaks = c(0, 2, 4, 6, 8, 10)
+  ) +
   scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
   scale_alpha_continuous(range = c(.3, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
-  guides(color = guide_legend(), 
-         size=guide_legend(),
-         alpha = guide_legend())+
+  guides(
+    color = guide_legend(),
+    size = guide_legend(),
+    alpha = guide_legend()
+  ) +
   theme(
-    legend.position = c(.75, .25)
-  )  
+    legend.position = c(.8, .25),
+    plot.caption = element_text(hjust = 0.5),
+    text = element_text(family = "Times New Roman")
+  )
 ```
 
-<img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" />
+<img src="README_files/figure-gfm/question-one-plot-two-northeast-1.png" width="90%" />
 
 ``` r
-ggplot() + 
+ggplot() +
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
-  geom_jitter(data = europe_tweets, 
-             aes(x = long, y = lat, size = tag_count, color = tag_count,
-                 alpha = tag_count)) +
-  labs(title = "#DuBoisChallenge Tweets",
-       subtitle = "in Europe",
-       size = "# of Users Tagged",
-       alpha = "# of Users Tagged",
-       color = "# of Users Tagged") +
-  theme_void() +
+  geom_jitter(
+    data = europe_tweets,
+    aes(
+      x = long, y = lat, size = tag_count, color = tag_count,
+      alpha = tag_count
+    )
+  ) +
   coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
-  theme(text = element_text(family = "Times New Roman")) +
-  scale_color_continuous_sequential(palette = "OrYel", rev = FALSE,
-                                    breaks = c(0, 2, 4, 6, 8, 10)) +
+  labs(
+    title = "#DuBoisChallenge Tweets",
+    subtitle = "in Europe",
+    caption = "Based on Long and Lat of User Home Location",
+    size = "# of Users Tagged",
+    alpha = "# of Users Tagged",
+    color = "# of Users Tagged"
+  ) +
+  theme_void() +
+  scale_color_continuous_sequential(
+    palette = "OrYel", rev = FALSE,
+    breaks = c(0, 2, 4, 6, 8, 10)
+  ) +
   scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
   scale_alpha_continuous(range = c(.4, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
-  guides(color = guide_legend(), 
-         size=guide_legend(),
-         alpha = guide_legend())
+  guides(
+    color = guide_legend(),
+    size = guide_legend(),
+    alpha = guide_legend()
+  ) +
+  theme(
+    text = element_text(family = "Times New Roman"),
+    plot.caption = element_text(hjust = 0.5)
+  )
 ```
 
-<img src="README_files/figure-gfm/question-one-plot-two-2.png" width="90%" />
+<img src="README_files/figure-gfm/question-one-plot-two-europe-1.png" width="90%" />
 
 ### Discussion
 
@@ -449,123 +469,81 @@ required to do so. All plots must be made with ggplot2. Do not use base
 R or lattice plotting functions.
 
 ``` r
-# tweets_time <- tweets %>% 
-#   filter(!is.na(datetime)) %>%
-#   mutate(tag_count = str_count(content, "@"),
-#          time = as.numeric(str_sub(datetime, start=12, end=13)),
-#          date = ymd(str_sub(datetime, start = 1, end = 11)),
-#          month = month(date),
-#          month_name = case_when(
-#            month == 2 ~ "February",
-#            month == 3 ~ "March",
-#            month == 4 ~ "April",
-#            month == 5 ~ "May"),
-#          month_name = fct_reorder(month_name, month)
-#          )
+tweets <- tweets %>%
+  mutate(devicetype = case_when(
+    str_detect(text, "Twitter Web App") ~ "Web App",
+    str_detect(text, "Twitter for iPhone") ~ "iPhone",
+    str_detect(text, "Twitter for Android") ~ "Android",
+    str_detect(text, "Buffer") ~ "Buffer",
+    str_detect(text, "Twitter for iPad") ~ "iPad",
+    str_detect(text, "TweetDeck") ~ "TweetDeck",
+    str_detect(text, "Crowdfire App") ~ "Crowdfire App",
+    str_detect(text, "Twitter for Mac") ~ "Mac"))
+
+tweets_device <- tweets %>% 
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")
 ```
 
 ``` r
-# tweets_time %>% 
-#   filter(month_name != "May") %>% 
-# ggplot(aes(x = month_name, y = tag_count, color = month_name)) + 
-#   geom_violin(show.legend = FALSE) +
-#   scale_color_colorblind() +
-#   scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
-#   labs(
-#     x = "Month Tweeted",
-#     y = "Number of People Tagged",
-#     title = "When #DuBoisChallenge Tweeters Tagged People"
-#   ) +
-#   theme(text = element_text(family = "Times New Roman"))
-```
-
-``` r
-# tweets_time %>% 
-#   filter(month_name != "May") %>% 
-# ggplot(aes(x = like_count)) + 
-#   facet_wrap(~ month_name, scales = "free_x") +
-#   geom_histogram() +
-#   scale_color_colorblind() 
-```
-
-``` r
-# Warning concerns purposefully removed data points for purposes of removing 
-# outliers
-
-tweets %>%
-  mutate(tag_count = str_count(content, "@")) %>%
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
-ggplot(aes(x = followers, fill = devicetype)) + 
-  geom_density(show.legend = FALSE) + 
-  facet_wrap(.~devicetype, scales = "free_y", nrow = 3) +
-  scale_x_continuous(limit = c(0,8000)) +
-  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+# warning = FALSE: purposefully set x bounds to remove outlier data points
+ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
+  geom_density(show.legend = FALSE) +
+  facet_wrap(. ~ devicetype, scales = "free_y", nrow = 3) +
   theme_minimal() +
+  scale_x_continuous(
+    breaks = seq(0, 8000, 1000), limit = c(0, 8000),
+    labels = label_number(big.mark = ",")
+  ) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  scale_y_continuous(labels = label_number(accuracy = .00001)) +
   labs(
     title = "Distribution of Follower Count",
-    subtitle = "Stratified by Writer's Twitter Device",
+    subtitle = "Stratified by Where Tweet Was Posted From",
     x = "Number of Followers",
     y = NULL
   ) +
-  scale_y_continuous(labels = label_number(accuracy = .00001))
+  theme(text = element_text(family = "Times New Roman"))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-1-1.png" width="90%" />
+<img src="README_files/figure-gfm/question-two-plot-one-1.png" width="90%" />
 
 ``` r
-tweets %>%
+outliers <- tweets_device %>%
   filter(!is.na(like_count)) %>%
-  summarise(IQR = IQR(like_count), Q1 = quantile(like_count, 0.25), Q3 = quantile(like_count, 0.75), 
-            boundary = Q3 + 2 * IQR) 
+  group_by(devicetype) %>%
+  summarise(
+    IQR = IQR(like_count),
+    Q1 = quantile(like_count, 0.25),
+    Q3 = quantile(like_count, 0.75),
+    farboundary = Q3 + 2 * IQR,
+    upper_out = Q3 + 1.5 * IQR,
+    lower_out = Q1 - 1.5 * IQR
+  )
+
+tweets_likes <- tweets_device %>%
+  filter(like_count <= round(outliers$farboundary[3]))
 ```
 
-    ##   IQR Q1 Q3 boundary
-    ## 1  14  2 16       44
-
 ``` r
-tweets %>%
-  filter(like_count <= 44) %>%
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
-  ggplot(aes(y = like_count, fill = devicetype)) + 
+ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
   facet_wrap(~devicetype) +
   geom_boxplot(show.legend = FALSE) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  labs(x = NULL, y = "Number of Likes", 
-       title = "Distribution of Likes",
-       subtitle = "Stratified by Writer's Twitter Device") +
+  labs(
+    x = NULL, y = "Number of Likes",
+    title = "Distribution of Likes",
+    subtitle = "Stratified by Where Tweet Was Posted From",
+    caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
+  ) +
   theme_minimal() +
   theme(
     axis.ticks = element_blank(),
-    axis.text.x = element_blank()
-  ) 
+    axis.text.x = element_blank(),
+    text = element_text(family = "Times New Roman")
+  )
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" width="90%" />
-
-``` r
-# Annote number of outliers for each thing
-```
-
-``` r
-tweets %>%
-  mutate(tag_count = str_count(content, "@"),
-         time = as.numeric(str_sub(datetime, start=12, end=13)),
-         date = ymd(str_sub(datetime, start = 1, end = 11)),
-         month = month(date),
-         month_name = case_when(
-           month == 2 ~ "February",
-           month == 3 ~ "March",
-           month == 4 ~ "April",
-           month == 5 ~ "May"),
-         month_name = fct_reorder(month_name, month)
-         ) %>%
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
-  ggplot(aes(x = date, y = tag_count)) + 
-  facet_wrap(~month) +
-  geom_line()
-```
-
-<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" width="90%" />
+<img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
 
 ### Discussion
 
@@ -588,3 +566,6 @@ sure to note the retrieval date.
 
 List any references here. You should, at a minimum, list your data
 source.
+
+world map/eu code taken from
+<https://www.r-bloggers.com/2019/04/zooming-in-on-maps-with-sf-and-ggplot2/>
