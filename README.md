@@ -60,6 +60,7 @@ library(lubridate)
 
 ``` r
 library(stringr)
+library(colorspace)
 ```
 
 ``` r
@@ -272,6 +273,9 @@ tweets <- tweets %>%
     str_detect(text, "Crowdfire App") ~ "Crowdfire App",
     str_detect(text, "Twitter for Mac") ~ "Mac"
   ))
+
+tweets <- tweets %>%
+  mutate(tag_count = str_count(content, "@"))
 ```
 
 ``` r
@@ -334,34 +338,31 @@ ggplot() +
                aes(x = long, y = lat, group = group), 
                fill = "lightgray", color = "black") +
   geom_point(data = northeast_tweets, 
-             aes(x = long, y = lat, size = retweet_count, alpha = retweet_count), 
-             color = "red") +
+             aes(x = long, y = lat, size = tag_count, color = tag_count)) +
   coord_map(xlim = c(-80, -65),
-            ylim = c(36, 46)) +
-  scale_alpha_continuous(range = c(.4, 1)) +
+            ylim = c(36, 46)
+            ) +
   labs(title = "#DuBoisChallenge Tweets in the North-East and Canada",
        size = "Number of Retweets",
        alpha = "Number of Retweets") +
-  theme_minimal() +
   theme_void() +
-  theme(text = element_text(family = "Times New Roman"))
+  theme(text = element_text(family = "Times New Roman")) +
+  scale_color_continuous_sequential(palette = "YlGnBu", rev = TRUE)
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" />
 
 ``` r
 ggplot() + 
-  geom_sf(data = world_map, fill = "lightgray", color = "black") +
-  geom_point(data = europe_tweets, 
-             aes(x = long, y = lat, size = retweet_count, alpha = retweet_count), 
-             color = "red") +
-  scale_alpha_continuous(range = c(.4, 1)) +
+  geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
+  geom_jitter(data = europe_tweets, 
+             aes(x = long, y = lat, size = tag_count, color = tag_count)) +
   labs(title = "#DuBoisChallenge Tweets in Europe",
-       size = "Number of Retweets",
-       alpha = "Number of Retweets") +
+       size = "Number of Retweets") +
   theme_void() +
   coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
-  theme(text = element_text(family = "Times New Roman"))
+  theme(text = element_text(family = "Times New Roman")) +
+  scale_color_continuous_sequential(palette = "YlGnBu", rev = TRUE)
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-two-2.png" width="90%" />
