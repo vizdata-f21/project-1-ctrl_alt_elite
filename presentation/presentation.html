@@ -12,7 +12,6 @@
 class: center, middle, inverse, title-slide
 
 # Twitter Trends in #DuBoisChallenge
-## Presentation subtitle (if any)
 ### Ctrl Alt Elite <br> Andrew Blosse, Anna Greenleaf, Sana Pashankar, &amp; Raghav Rasal
 ### Duke University
 ### 2021-09-30
@@ -50,75 +49,93 @@ charactersitics such as location, number of retweets, number of followers etc.
 - Motivation to analyze dataset - aim to dive deeper into how people across the
 world engage with history and data visualizations through social media
 
-## How does general interest of the #DuBois challenge vary geographically?
+---
 
-
-## Code
-
-
-```r
-# a boring regression
-model &lt;- lm(dist ~ speed, data = cars)
-tidy(model)
-```
-
-```
-## # A tibble: 2 × 5
-##   term        estimate std.error statistic  p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept)   -17.6      6.76      -2.60 1.23e- 2
-## 2 speed           3.93     0.416      9.46 1.49e-12
-```
-
-```r
-glance(model)
-```
-
-```
-## # A tibble: 1 × 12
-##   r.squared adj.r.squared sigma statistic  p.value    df logLik   AIC   BIC
-##       &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1     0.651         0.644  15.4      89.6 1.49e-12     1  -207.  419.  425.
-## # … with 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;
-```
+## Question #1 : How does general interest of the #DuBois challenge vary geographically?
 
 ---
 
-## Question1 - Plot 1
+## Question 1 - Plot 1
+
+.pull-left[
 
 
+&lt;img src="presentation_files/figure-html/question-one-plot-one-1.png" width="72%" /&gt;
+]
 
-&lt;img src="presentation_files/figure-html/question-one-plot-one-1.png" width="60%" /&gt;
+.pull-right[
+- Seeking to understand what the most popular 
+locations at the time of tweets were for the #DuBoisChallenge.
+
+- Shows most of the Twitter challenge activity is occurring in the US
+
+- Most represented home location is in New York
+
+- Most people interested in and interacting with this challenge are in the US
+]
 
 ---
 
 ## Question 1 - Plot 2
 
 
+.pull-left[
 
 
-&lt;img src="presentation_files/figure-html/question-one-plot-two-northeast-1.png" width="72%" /&gt;
 
+&lt;img src="presentation_files/figure-html/question-one-plot-two-northeast-1.png" width="70%" /&gt;
+]
+
+.pull-right[
+- Which areas of the world published the most tweets during the challenge and 
+ how did the number of  tags in a tweet vary across the globe?
+ 
+- Focuses on NE US since that is where most users assigned their location
+
+- Increased tag count in NYC could be due to the city's historical ties to 
+ WEB Du Bois and its cultural significance with the 
+ African-American community
+]
 ---
 
 ## Question 1 - Plot 3
 
+
+.pull-left[
 &lt;img src="presentation_files/figure-html/question-one-plot-two-europe-1.png" width="80%" /&gt;
 
 
 
+]
+
+
+.pull-left[
+- UK is the most active location in Europe
+
+- Map matches our first visualization’s findings that 
+ the UK and Austria hold most of the data
+ 
+- Most populated countries in Europe &gt; makes sense to have the most
+  number of people tagged in their tweets
+]
 
 ---
+## Question 2: Input Question 
+
+---
+
+## Question 2 - Plot 1
+
 .pull-left[
-
-## Question 2 
-
 
 
 &lt;img src="presentation_files/figure-html/question-two-plot-one-1.png" width="100%" /&gt;
-]
+] 
+---
 
-.pull-right[
+#Question Two- Plot Two 
+
+.pull-left[
 
 
 
@@ -128,7 +145,21 @@ glance(model)
 
 &lt;img src="presentation_files/figure-html/question-two-plot-two-1.png" width="100%" /&gt;
 ]
+
+.pull-right[
+- bullets  
+-
+-
+
+]
+
+
+
 ---
+
+
+
+
 
 ## Plot and text
 
