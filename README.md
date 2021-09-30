@@ -595,7 +595,46 @@ tweets_likes <- tweets_device %>%
 ```
 
 ``` r
-ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
+# ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
+#   facet_wrap(~devicetype) +
+#   geom_boxplot(show.legend = FALSE) +
+#   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+#   labs(
+#     x = NULL, y = "Number of Likes",
+#     title = "Distribution of Likes",
+#     subtitle = "Stratified by Where Tweet Was Posted From",
+#     caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     axis.ticks = element_blank(),
+#     axis.text.x = element_blank(),
+#     text = element_text(family = "Times New Roman")
+#   )
+```
+
+``` r
+outliers <- tweets_device %>%
+  filter(!is.na(like_count)) %>%
+  group_by(devicetype) %>%
+  summarise(
+    IQR = IQR(like_count),
+    Q1 = quantile(like_count, 0.25),
+    Q3 = quantile(like_count, 0.75),
+    farboundary = Q3 + 2 * IQR,
+    upper_out = Q3 + 1.5 * IQR,
+    lower_out = Q1 - 1.5 * IQR
+  )
+
+tweets_likes <- tweets_device %>%
+  filter(like_count <= round(outliers$farboundary[3]))
+```
+
+``` r
+tweets%>%
+  mutate(loglikes=log(like_count))%>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")%>%
+  ggplot(aes(y = loglikes, fill = devicetype)) +
   facet_wrap(~devicetype) +
   geom_boxplot(show.legend = FALSE) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
@@ -613,7 +652,9 @@ ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
   )
 ```
 
-<img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
+    ## Warning: Removed 25 rows containing non-finite values (stat_boxplot).
+
+<img src="README_files/figure-gfm/question-two-plot-two-log-1.png" width="90%" />
 
 ### Discussion
 

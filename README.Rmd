@@ -3,7 +3,7 @@ title: Project title
 author: Ctrl Alt Elite
 output: github_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r load-packages}
@@ -484,7 +484,7 @@ ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
   theme(text = element_text(family = "Times New Roman"))
 ```
 
-```{r question-two-plot-two-wrangling}
+```{r question-two-plot-two-wrangling1}
 outliers <- tweets_device %>%
   filter(!is.na(like_count)) %>%
   group_by(devicetype) %>%
@@ -502,7 +502,47 @@ tweets_likes <- tweets_device %>%
 ```
 
 ```{r question-two-plot-two}
-ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
+# ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
+#   facet_wrap(~devicetype) +
+#   geom_boxplot(show.legend = FALSE) +
+#   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+#   labs(
+#     x = NULL, y = "Number of Likes",
+#     title = "Distribution of Likes",
+#     subtitle = "Stratified by Where Tweet Was Posted From",
+#     caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     axis.ticks = element_blank(),
+#     axis.text.x = element_blank(),
+#     text = element_text(family = "Times New Roman")
+#   )
+```
+
+```{r question-two-plot-two-wrangling}
+outliers <- tweets_device %>%
+  filter(!is.na(like_count)) %>%
+  group_by(devicetype) %>%
+  summarise(
+    IQR = IQR(like_count),
+    Q1 = quantile(like_count, 0.25),
+    Q3 = quantile(like_count, 0.75),
+    farboundary = Q3 + 2 * IQR,
+    upper_out = Q3 + 1.5 * IQR,
+    lower_out = Q1 - 1.5 * IQR
+  )
+
+tweets_likes <- tweets_device %>%
+  filter(like_count <= round(outliers$farboundary[3]))
+```
+
+```{r question-two-plot-two-log}
+
+tweets%>%
+  mutate(loglikes=log(like_count))%>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")%>%
+  ggplot(aes(y = loglikes, fill = devicetype)) +
   facet_wrap(~devicetype) +
   geom_boxplot(show.legend = FALSE) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
@@ -519,6 +559,8 @@ ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
     text = element_text(family = "Times New Roman")
   )
 ```
+
+
 
 ### Discussion
 

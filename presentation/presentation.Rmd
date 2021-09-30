@@ -1,5 +1,5 @@
 ---
-title: "Presentation title"
+title: "Twitter Trends in #DuBoisChallenge"
 subtitle: "Presentation subtitle (if any)"
 author: "Ctrl Alt Elite <br> Andrew Blosse, Anna Greenleaf, Sana Pashankar, & Raghav Rasal"
 institute: "Duke University"
@@ -36,6 +36,7 @@ library(colorspace)
 library(scales)
 
 library(showtext)
+library(ggrepel)
 ```
 
 ```{r setup, include=FALSE}
@@ -64,35 +65,24 @@ class: inverse, middle, center
 
 ## Introduction
 
-- The presentation is created using the `xaringan` package
+```{r pic}
+## trying to add a picture of Dubois onto the intro slide
+```
 
-- Use `---` to separate slides and `--` for incremental builds
+- William Edward Burghardt Du Bois (W.E.B. Du Bois) was an American data 
+visualization expert whose work challenged racist notions
 
---
+- The #DuBoisChallenge encouraged creative recreations of his visualizations in a 
+modern context
 
-- Like this
+- Dataset consists of tweets that include "#DuBoisChallenge" and their various 
+charactersitics such as location, number of retweets, number of followers etc.
 
----
+- Motivation to analyze dataset - aim to dive deeper into how people across the
+world engage with history and data visualizations through social media
 
 ## How does general interest of the #DuBois challenge vary geographically?
 
-You can use plain text
-
-- or bullet points
-
-.pull-left[
-or text in two columns $^*$
-]
-.pull-right[
-- like
-- this
-]
-
-.footnote[
-[*] And add footnotes
-]
-
----
 
 ## Code
 
@@ -105,9 +95,11 @@ glance(model)
 
 ---
 
-## Plot One
+## Question1 - Plot 1
 
 ```{r question-one-plot-one-wrangling, echo = FALSE}
+
+
 tweets_locations <- tweets %>%
   filter(!str_detect(location, "@"), !str_detect(location, ":")) %>%
   mutate(location_pre_comma = gsub(",.*", "", location)) %>%
@@ -170,7 +162,7 @@ top_10_locations <- tweets_locations %>%
   )
 ```
 
-```{r question-one-plot-one, echo = FALSE, out.width = "80%"}
+```{r question-one-plot-one, echo = FALSE, out.width = "60%"}
 ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
   geom_col() +
   geom_text(aes(label = percent_tweets, color = internat),
@@ -189,17 +181,17 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
   ) +
   theme_minimal() +
   theme(
-    text = element_text(family = "Times New Roman"), 
+    #text = element_text(family = "Times New Roman"),
     legend.title = element_blank(),
-    legend.position = c(.85, .17) 
+    legend.position = c(.85, .17)
   )
 ```
 
 ---
 
-## Plot Two
+## Question 1 - Plot 2
 
-```{r question-one-plot-two-wrangling, echo = FALSE}
+```{r question-one-plot-two-wrangling, echo = FALSE, out.width = "72%"}
 tweets <- tweets %>%
   mutate(tag_count = str_count(content, "@"))
 
@@ -224,10 +216,10 @@ us_map <- map_data("state")
 canada_map <- map_data("world", "canada")
 
 city_locations <- tribble(
-  ~City, ~Long, ~Lat,
-  "NYC", 36.36, 10.8,
-  "Newark", 40.7357, 74.1724,
-  "Baltimore", 39.2904, 76.6122
+  ~city, ~lat, ~long,
+  "NYC", 40.7128, -74.0060,
+  "Newark", 40.7357, -74.1724,
+  "Baltimore", 39.2904, -76.6122
 )
 ```
 
@@ -237,6 +229,12 @@ city_locations <- tribble(
 
 # Do we need to address showing relative populations like we said we would in
 # proposal cause of peer feedback??
+
+set.seed(1234)
+
+# labels <- ggplot(data = city_locations, aes(x = Long, y = Lat)) +
+#   geom_point(aes(x = Long, y = Lat)) +
+#   geom_text(aes(label = City))
 
 ggplot() +
   geom_polygon(
@@ -252,20 +250,15 @@ ggplot() +
   ) +
   geom_jitter(
     data = northeast_tweets,
-    width = 0.25, height = .25,
+    width = 0.5, height = .5,
     aes(
       x = long, y = lat, size = tag_count, color = tag_count,
       alpha = tag_count
-    )
-  ) +
-  coord_map(
-    xlim = c(-80, -65),
-    ylim = c(36, 46)
-  ) +
+    ))  +
   labs(
     title = "#DuBoisChallenge Tweets",
-    subtitle = "in Northeastern U.S. & Canada",
-    caption = "Based on Long and Lat of User Home Location",
+    subtitle = "in Northeastern U.S. & Canada\n",
+    caption = "Based on Location Where Tweet Was Published",
     size = "# of Users Tagged",
     color = "# of Users Tagged",
     alpha = "# of Users Tagged"
@@ -276,21 +269,39 @@ ggplot() +
     breaks = c(0, 2, 4, 6, 8, 10)
   ) +
   scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
-  scale_alpha_continuous(range = c(.3, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.27, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
   guides(
     color = guide_legend(),
     size = guide_legend(),
     alpha = guide_legend()
   ) +
   theme(
-    legend.position = c(.8, .25),
-    plot.caption = element_text(hjust = 0.5)
+    legend.position = "bottom",
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.title = element_text(hjust = 0.5, face = "bold"), 
+    plot.caption = element_text(hjust = 0.5),
+    panel.border = element_rect(color = "black", fill = NA, size = .75),
+    panel.background = element_rect(color = "black", fill = "lightblue")
+    #text = element_text(family = "Times New Roman")
+  )+
+  geom_text_repel(data=city_locations, aes(x=long, y=lat, label=city))+
+  coord_map(
+    xlim = c(-80, -65),
+    ylim = c(36, 46)
   )
+  
 ```
 
 ---
 
+## Question 1 - Plot 3
+
 ```{r question-one-plot-two-europe, echo = FALSE, out.width = "80%"}
+# labels_map <- world_map %>% filter(name %in% c(
+#   "Paris", "London"
+# ))
+
+
 ggplot() +
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
   geom_jitter(
@@ -300,11 +311,12 @@ ggplot() +
       alpha = tag_count
     )
   ) +
+   #geom_sf_label(data = world_map, aes(label = name), label.padding = unit(1, "mm")) +
   coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
   labs(
     title = "#DuBoisChallenge Tweets",
-    subtitle = "in Europe",
-    caption = "Based on Long and Lat of User Home Location",
+    subtitle = "in Europe\n",
+    caption = "Based on Location Where Tweet Was Published",
     size = "# of Users Tagged",
     alpha = "# of Users Tagged",
     color = "# of Users Tagged"
@@ -315,14 +327,20 @@ ggplot() +
     breaks = c(0, 2, 4, 6, 8, 10)
   ) +
   scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
-  scale_alpha_continuous(range = c(.4, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.27, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
   guides(
     color = guide_legend(),
     size = guide_legend(),
     alpha = guide_legend()
   ) +
   theme(
-    plot.caption = element_text(hjust = 0.5)
+    legend.position = "bottom",
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.title = element_text(hjust = 0.5, face = "bold"), 
+    plot.caption = element_text(hjust = 0.5),
+    panel.border = element_rect(color = "black", fill = NA, size = .75),
+    panel.background = element_rect(color = "black", fill = "lightblue")
+    #text = element_text(family = "Times New Roman")
   )
 ```
 
@@ -345,6 +363,9 @@ ggplot() +
 
 ---
 .pull-left[
+
+## Question 2 
+
 ```{r question-two-plot-one-wrangling, echo = FALSE}
 tweets <- tweets %>%
   mutate(devicetype = case_when(
@@ -379,6 +400,7 @@ ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
     x = "Number of Followers",
     y = NULL
   ) 
+#+theme(text = element_text(family = "Times New Roman"))
 ```
 ]
 
@@ -401,7 +423,11 @@ tweets_likes <- tweets_device %>%
 ```
 
 ```{r question-two-plot-two, echo = FALSE, out.width = "100%"}
-ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
+
+tweets%>%
+  mutate(loglikes=log(like_count))%>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")%>%
+  ggplot(aes(y = loglikes, fill = devicetype)) +
   facet_wrap(~devicetype) +
   geom_boxplot(show.legend = FALSE) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
@@ -415,6 +441,7 @@ ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
   theme(
     axis.ticks = element_blank(),
     axis.text.x = element_blank()
+    #text = element_text(family = "Times New Roman")
   )
 ```
 ]
