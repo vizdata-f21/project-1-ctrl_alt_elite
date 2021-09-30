@@ -37,7 +37,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r load-data, include=FALSE}
-# Load your data here
+tweets <- read.csv("../data/tweets.csv")
 ```
 
 ```{r style-slides, echo = FALSE}
@@ -48,11 +48,8 @@ style_xaringan(
 
 class: inverse, middle, center
 
-# Using xaringan
 
----
-
-## xaringan
+## Introduction
 
 - The presentation is created using the `xaringan` package
 
@@ -64,7 +61,7 @@ class: inverse, middle, center
 
 ---
 
-## Layouts
+## Question 1 (Fill in)
 
 You can use plain text
 
@@ -86,7 +83,7 @@ or text in two columns $^*$
 
 ## Code
 
-```{r boring-regression}
+```{r 1st visualisation}
 # a boring regression
 model <- lm(dist ~ speed, data = cars)
 tidy(model)
