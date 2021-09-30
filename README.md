@@ -61,7 +61,19 @@ library(lubridate)
 ``` r
 library(stringr)
 library(colorspace)
+library(scales)
 ```
+
+    ## 
+    ## Attaching package: 'scales'
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     discard
+
+    ## The following object is masked from 'package:readr':
+    ## 
+    ##     col_factor
 
 ``` r
 knitr::opts_chunk$set(
@@ -285,17 +297,18 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
             size = 2.5,
             nudge_x = 8, 
             show.legend = FALSE) +
-  scale_fill_colorblind() +
-  scale_color_colorblind() +
+  scale_fill_manual(values = c("navyblue", "darkred")) +
+  scale_color_manual(values = c("navyblue", "darkred")) +
   scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
   labs(
-    y = "Region",
+    y = "Location Tweeted From",
     x = "Number of Tweets",
-    title = "Top 10 Most Popular #DuBoisChallenge Tweet Locations",
+    title = "Top 10 #DuBoisChallenge Tweet Locations",
     fill = "Location"
   ) +
   theme_minimal() +
-  theme(text = element_text(family = "Times New Roman"))
+  theme(text = element_text(family = "Times New Roman"),
+        legend.title = element_blank())
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-one-1.png" width="90%" />
@@ -318,6 +331,13 @@ world_map <- ne_countries(scale = 'medium', type = 'map_units',
                          returnclass = 'sf')
 us_map <- map_data("state")
 canada_map <- map_data("world","canada")
+
+city_locations <- tribble(
+  ~City, ~Long, ~Lat,
+  "NYC", 36.36, 10.8,
+  "Newark", 40.7357, 74.1724,
+  "Baltimore", 39.2904, 76.6122
+)
 ```
 
 ``` r
@@ -332,22 +352,36 @@ canada_map <- map_data("world","canada")
 ggplot() +
   geom_polygon(data = canada_map, 
                aes(x = long, y = lat, group = group), 
-               fill = "lightgray", 
+               fill = "#F0F0F0", 
                color = "black") +
   geom_polygon(data = us_map, 
                aes(x = long, y = lat, group = group), 
-               fill = "lightgray", color = "black") +
-  geom_point(data = northeast_tweets, 
-             aes(x = long, y = lat, size = tag_count, color = tag_count)) +
+               fill = "#F0F0F0", color = "black") +
+  geom_jitter(data = northeast_tweets, 
+              width = 0.25, height = .25,
+             aes(x = long, y = lat, size = tag_count, color = tag_count,
+                 alpha = tag_count)) +
   coord_map(xlim = c(-80, -65),
             ylim = c(36, 46)
             ) +
-  labs(title = "#DuBoisChallenge Tweets in the North-East and Canada",
-       size = "Number of Retweets",
-       alpha = "Number of Retweets") +
+  labs(title = "#DuBoisChallenge Tweets",
+       subtitle = "in Northeastern U.S. & Canada",
+       size = "# of Users Tagged",
+       color = "# of Users Tagged",
+       alpha = "# of Users Tagged") +
+       #caption = "Long and Lat Based on User Home Location") +
   theme_void() +
   theme(text = element_text(family = "Times New Roman")) +
-  scale_color_continuous_sequential(palette = "YlGnBu", rev = TRUE)
+  scale_color_continuous_sequential(palette = "OrYel", rev = FALSE,
+                                    breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.3, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  guides(color = guide_legend(), 
+         size=guide_legend(),
+         alpha = guide_legend())+
+  theme(
+    legend.position = c(.75, .25)
+  )  
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" />
@@ -356,13 +390,23 @@ ggplot() +
 ggplot() + 
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
   geom_jitter(data = europe_tweets, 
-             aes(x = long, y = lat, size = tag_count, color = tag_count)) +
-  labs(title = "#DuBoisChallenge Tweets in Europe",
-       size = "Number of Retweets") +
+             aes(x = long, y = lat, size = tag_count, color = tag_count,
+                 alpha = tag_count)) +
+  labs(title = "#DuBoisChallenge Tweets",
+       subtitle = "in Europe",
+       size = "# of Users Tagged",
+       alpha = "# of Users Tagged",
+       color = "# of Users Tagged") +
   theme_void() +
   coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
   theme(text = element_text(family = "Times New Roman")) +
-  scale_color_continuous_sequential(palette = "YlGnBu", rev = TRUE)
+  scale_color_continuous_sequential(palette = "OrYel", rev = FALSE,
+                                    breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_size_continuous(range = c(2, 5), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_alpha_continuous(range = c(.4, 1), breaks = c(0, 2, 4, 6, 8, 10)) +
+  guides(color = guide_legend(), 
+         size=guide_legend(),
+         alpha = guide_legend())
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-two-2.png" width="90%" />
@@ -405,80 +449,68 @@ required to do so. All plots must be made with ggplot2. Do not use base
 R or lattice plotting functions.
 
 ``` r
-tweets %>%
-  count(devicetype)
-```
-
-    ##      devicetype   n
-    ## 1       Android  25
-    ## 2        Buffer   1
-    ## 3 Crowdfire App   2
-    ## 4          iPad   7
-    ## 5        iPhone  39
-    ## 6           Mac   2
-    ## 7     TweetDeck  16
-    ## 8       Web App 352
-    ## 9          <NA>   1
-
-``` r
-tweets_time <- tweets %>% 
-  filter(!is.na(datetime)) %>%
-  mutate(tag_count = str_count(content, "@"),
-         time = as.numeric(str_sub(datetime, start=12, end=13)),
-         date = ymd(str_sub(datetime, start = 1, end = 11)),
-         month = month(date),
-         month_name = case_when(
-           month == 2 ~ "February",
-           month == 3 ~ "March",
-           month == 4 ~ "April",
-           month == 5 ~ "May"),
-         month_name = fct_reorder(month_name, month)
-         )
+# tweets_time <- tweets %>% 
+#   filter(!is.na(datetime)) %>%
+#   mutate(tag_count = str_count(content, "@"),
+#          time = as.numeric(str_sub(datetime, start=12, end=13)),
+#          date = ymd(str_sub(datetime, start = 1, end = 11)),
+#          month = month(date),
+#          month_name = case_when(
+#            month == 2 ~ "February",
+#            month == 3 ~ "March",
+#            month == 4 ~ "April",
+#            month == 5 ~ "May"),
+#          month_name = fct_reorder(month_name, month)
+#          )
 ```
 
 ``` r
-tweets_time %>% 
-  filter(month_name != "May") %>% 
-ggplot(aes(x = month_name, y = tag_count, color = month_name)) + 
-  geom_violin(show.legend = FALSE) +
-  scale_color_colorblind() +
-  scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
-  labs(
-    x = "Month Tweeted",
-    y = "Number of People Tagged",
-    title = "When #DuBoisChallenge Tweeters Tagged People"
-  ) +
-  theme(text = element_text(family = "Times New Roman"))
+# tweets_time %>% 
+#   filter(month_name != "May") %>% 
+# ggplot(aes(x = month_name, y = tag_count, color = month_name)) + 
+#   geom_violin(show.legend = FALSE) +
+#   scale_color_colorblind() +
+#   scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
+#   labs(
+#     x = "Month Tweeted",
+#     y = "Number of People Tagged",
+#     title = "When #DuBoisChallenge Tweeters Tagged People"
+#   ) +
+#   theme(text = element_text(family = "Times New Roman"))
 ```
 
-<img src="README_files/figure-gfm/question-two-plot-one-1.png" width="90%" />
-
 ``` r
-tweets_time %>% 
-  filter(month_name != "May") %>% 
-ggplot(aes(x = like_count)) + 
-  facet_wrap(~ month_name, scales = "free_x") +
-  geom_histogram() +
-  scale_color_colorblind() 
+# tweets_time %>% 
+#   filter(month_name != "May") %>% 
+# ggplot(aes(x = like_count)) + 
+#   facet_wrap(~ month_name, scales = "free_x") +
+#   geom_histogram() +
+#   scale_color_colorblind() 
 ```
 
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-<img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
-
 ``` r
+# Warning concerns purposefully removed data points for purposes of removing 
+# outliers
+
 tweets %>%
   mutate(tag_count = str_count(content, "@")) %>%
   filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
-ggplot(aes(x = followers)) + 
-  geom_density() + 
+ggplot(aes(x = followers, fill = devicetype)) + 
+  geom_density(show.legend = FALSE) + 
   facet_wrap(.~devicetype, scales = "free_y", nrow = 3) +
-  scale_x_continuous(limit = c(0,8000))
+  scale_x_continuous(limit = c(0,8000)) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Follower Count",
+    subtitle = "Stratified by Writer's Twitter Device",
+    x = "Number of Followers",
+    y = NULL
+  ) +
+  scale_y_continuous(labels = label_number(accuracy = .00001))
 ```
 
-    ## Warning: Removed 9 rows containing non-finite values (stat_density).
-
-<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" width="90%" />
+<img src="README_files/figure-gfm/unnamed-chunk-1-1.png" width="90%" />
 
 ``` r
 tweets %>%
@@ -494,14 +526,25 @@ tweets %>%
 tweets %>%
   filter(like_count <= 44) %>%
   filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
-  ggplot(aes(y = like_count)) + 
+  ggplot(aes(y = like_count, fill = devicetype)) + 
   facet_wrap(~devicetype) +
-  geom_boxplot() +
-  labs(x = "Device Type", y = "Like Count", 
-       title = "Like Count based on Device Type")
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  labs(x = NULL, y = "Number of Likes", 
+       title = "Distribution of Likes",
+       subtitle = "Stratified by Writer's Twitter Device") +
+  theme_minimal() +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank()
+  ) 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" width="90%" />
+<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" width="90%" />
+
+``` r
+# Annote number of outliers for each thing
+```
 
 ``` r
 tweets %>%
@@ -522,7 +565,7 @@ tweets %>%
   geom_line()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" width="90%" />
+<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" width="90%" />
 
 ### Discussion
 
