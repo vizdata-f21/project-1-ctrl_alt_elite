@@ -10,8 +10,8 @@ library(tidyverse)
 
     ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
     ## ✓ tibble  3.1.4     ✓ dplyr   1.0.7
-    ## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
-    ## ✓ readr   2.0.1     ✓ forcats 0.5.1
+    ## ✓ tidyr   1.1.4     ✓ stringr 1.4.0
+    ## ✓ readr   2.0.2     ✓ forcats 0.5.1
 
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## x dplyr::filter() masks stats::filter()
@@ -269,6 +269,18 @@ top_10_locations <- tweets_locations %>%
       plot_state == "Austria" ~ "International",
       TRUE ~ "Domestic"
     ),
+    region = case_when(
+      plot_state == "New York" ~ "US: Northeast",
+      plot_state == "New Jersey" ~ "US: Northeast",
+      plot_state == "Pennsylvania" ~ "US: Northeast",
+      plot_state == "Massachusetts" ~ "US: Northeast",
+      plot_state == "Tennessee" ~ "US: South",
+      plot_state == "California" ~ "US: West",
+      plot_state == "Austria"~ "Europe",
+      plot_state == "United Kingdom" ~ "Europe",
+      plot_state == "Wisconsin"~ "US: Midwest",
+      plot_state == "Minnesota" ~ "US: Midwest"
+    ),
     plot_state = fct_reorder(plot_state, n),
     percent_tweets = paste(round(n / sum(n), 4) * 100, "%")
   )
@@ -300,6 +312,34 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
 ```
 
 <img src="README_files/figure-gfm/question-one-plot-one-1.png" width="90%" />
+
+``` r
+library(RColorBrewer)
+ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
+  geom_col() +
+  geom_text(aes(label = percent_tweets, color = region),
+    size = 2.5,
+    nudge_x = 8,
+    show.legend = FALSE
+  ) +
+  scale_fill_brewer(palette="Set1") +
+  scale_color_brewer(palette="Set1") +
+  scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
+  labs(
+    y = "Location Tweeted From",
+    x = "Number of Tweets",
+    title = "Top 10 #DuBoisChallenge Tweet Locations",
+    fill = "Location"
+  ) +
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Times New Roman"),
+    legend.title = element_blank(),
+    legend.position = c(.85, .17) 
+  )
+```
+
+<img src="README_files/figure-gfm/question-one-plot-one-option-two-1.png" width="90%" />
 
 ``` r
 tweets <- tweets %>%
