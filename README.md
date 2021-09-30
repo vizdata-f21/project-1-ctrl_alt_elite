@@ -76,6 +76,10 @@ library(scales)
     ##     col_factor
 
 ``` r
+library(ggrepel)
+```
+
+``` r
 knitr::opts_chunk$set(
   fig.width = 8,
   fig.asp = 0.618,
@@ -371,12 +375,11 @@ us_map <- map_data("state")
 canada_map <- map_data("world", "canada")
 
 city_locations <- tribble(
-  ~city, ~long, ~lat,
-  "NYC", 36.36, 10.8,
-  "Newark", 40.7357, 74.1724,
-  "Baltimore", 39.2904, 76.6122
+  ~city, ~lat, ~long,
+  "NYC", 40.7128, -74.0060,
+  "Newark", 40.7357, -74.1724,
+  "Baltimore", 39.2904, -76.6122
 )
-city_locations <- data.frame(city_locations)
 ```
 
 ``` r
@@ -409,11 +412,7 @@ ggplot() +
     aes(
       x = long, y = lat, size = tag_count, color = tag_count,
       alpha = tag_count
-    )) +   
-  coord_map(
-    xlim = c(-80, -65),
-    ylim = c(36, 46)
-  ) +
+    ))  +
   labs(
     title = "#DuBoisChallenge Tweets",
     subtitle = "in Northeastern U.S. & Canada\n",
@@ -442,6 +441,11 @@ ggplot() +
     panel.border = element_rect(color = "black", fill = NA, size = .75),
     panel.background = element_rect(color = "black", fill = "lightblue"),
     text = element_text(family = "Times New Roman")
+  )+
+  geom_text_repel(data=city_locations, aes(x=long, y=lat, label=city))+
+  coord_map(
+    xlim = c(-80, -65),
+    ylim = c(36, 46)
   )
 ```
 

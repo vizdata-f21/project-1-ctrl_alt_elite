@@ -34,6 +34,8 @@ library(lubridate)
 library(stringr)
 library(colorspace)
 library(scales)
+
+library(showtext)
 ```
 
 ```{r setup, include=FALSE}
@@ -187,6 +189,7 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
   ) +
   theme_minimal() +
   theme(
+    text = element_text(family = "Times New Roman"), 
     legend.title = element_blank(),
     legend.position = c(.85, .17) 
   )
