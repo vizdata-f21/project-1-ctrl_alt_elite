@@ -440,12 +440,13 @@ ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
 ```
 
 - Median number of likes for Web App is greater than Android, iPhone
+- May indicate difference in constructing tweets on computer vs. phone
 
 ---
 
 ##Followers by Device Type
 
-```{r question-two-plot-two, warning=FALSE, out.width="63%", fig.width=6, echo=FALSE, warning = FALSE, fig.align = "center", fig.showtext = FALSE}
+```{r question-two-plot-two, warning=FALSE, out.width="70%", fig.width=6, echo=FALSE, warning = FALSE, fig.align = "center", fig.showtext = FALSE}
 # Plot drop's NAs and tweets with 0 likes since log(0) is undefined
 ggplot(
   data = joined_devices_follower,
@@ -471,9 +472,6 @@ ggplot(
     text = element_text(family = "Times New Roman")
   )
 ```
-
-
-- May indicate difference in constructing tweets on computer vs. phone
 
 
 ---
