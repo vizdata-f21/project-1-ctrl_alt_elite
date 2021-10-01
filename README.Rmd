@@ -477,7 +477,7 @@ ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
   scale_x_log10() +
   labs(
     title = "Distribution of Likes",
-    subtitle = "Stratified by Where Tweet Was Posted From",
+    subtitle = "by Device Tweet Was Posted From",
     caption = "x-axis uses logarithmic scale (tweets with 0 likes are ommited)",
     x = "Number of Likes",
     y = NULL 
@@ -504,12 +504,13 @@ ggplot(
   theme_minimal() +
   scale_x_log10(labels = label_number(big.mark = ",")) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  scale_y_continuous(labels = label_number(accuracy = .00001)) +
+  scale_y_continuous(labels = label_number(accuracy = .1)) +
   labs(
     title = "Distribution of Follower Count",
-    subtitle = "Stratified by Where Tweet Was Posted From",
-    x = "Number of Followers",
-    y = NULL, caption = "x-axis uses logarithmic scale"
+    subtitle = "by User's Primary Device",
+    caption = "x-axis uses logarithmic scale", 
+    x = "Average Number of Followers Per User",
+    y = NULL
   ) +
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold"),
