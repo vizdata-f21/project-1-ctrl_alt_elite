@@ -67,7 +67,7 @@ racist notions
 - \#DuBoisChallenge encouraged creative recreations of his visualizations in a 
 modern context
 
-- Dataset consists of 445 tweets that include "#DuBoisChallenge" 
+- Dataset consists of `r nrow(tweets)` tweets that include "#DuBoisChallenge" 
 
 - Aim to dive deeper into how people across the world engage with history and 
 data visualizations through social media
@@ -86,7 +86,7 @@ class: inverse, middle, center
 ---
 
 
-## Location Tweets
+## Location of Tweets
 
 ```{r question-one-wrangling, echo = FALSE}
 tweets <- tweets %>%
@@ -205,7 +205,7 @@ EU_locations <- tribble(
 
 ```
 
-```{r question-one-plot-one, out.width="60%", fig.width=6,echo=FALSE, fig.align = "center", fig.showtext = FALSE}
+```{r question-one-plot-one, out.width="65%", fig.width=6,echo=FALSE, fig.align = "center", fig.showtext = FALSE}
 ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
   geom_col() +
   geom_text(aes(label = percent_tweets, color = region),
@@ -230,20 +230,18 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
     plot.title = element_text(hjust = 0.5, face = "bold"),
     plot.caption = element_text(face = "italic"),
     legend.title = element_blank(),
-    legend.position = c(.848, .25),
+    legend.position = c(.848, .29),
+    legend.text = element_text(size = 6),
     text = element_text(family = "Times New Roman")
   )
 ```
 
 
-- Shows most common user
- locations in Twitter
- bio for #DuBoisChallenge
-- Shows most of the Twitter 
+- Most of the Twitter 
  challenge activity is 
  occurring in the US
 - Most represented user bio 
- location is New York
+ region is Northeast
 
 ---
 
@@ -370,12 +368,12 @@ Euromap <- ggplot() +
 
 class: inverse, middle, center
 
-# Question #2: What is the relationship between the device that publishes a tweet and how the audience engages with the author?
+# Question #2: What is the relationship between the device that is used to publish a tweet and how the audience engages with the author?
 
 ---
 
 
-## Followers by Device Type
+## Likes by Device Type
 
 ```{r question-two-plot-one-wrangling, echo = FALSE}
 tweets <- tweets %>%
@@ -445,7 +443,7 @@ ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
 
 ---
 
-##Likes by Device Type
+##Followers by Device Type
 
 ```{r question-two-plot-two, warning=FALSE, out.width="63%", fig.width=6, echo=FALSE, warning = FALSE, fig.align = "center", fig.showtext = FALSE}
 # Plot drop's NAs and tweets with 0 likes since log(0) is undefined

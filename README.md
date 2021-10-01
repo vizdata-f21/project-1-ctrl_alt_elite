@@ -16,6 +16,7 @@ library(colorspace)
 library(scales)
 library(ggrepel)
 library(RColorBrewer)
+library(patchwork)
 ```
 
 ``` r
@@ -38,37 +39,38 @@ W.E.B Du Bois was one of the most multifaceted and persuasive civil
 rights leaders in history; one of the channels he used to advance
 equality was his profound work in data visualization. In order to
 celebrate his legacy of using visualizations to do good in the world,
-the \#DuBoisChallenge calls upon users to recreate a selection of Du
-Bois’ visualizations from the 1900 Paris Exposition with the aid of
-modern tools.
+the TidyTuesday \#DuBoisChallenge calls upon users to recreate a
+selection of Du Bois’ visualizations from the 1900 Paris Exposition with
+the aid of modern tools.
 
 For our project, we’re choosing to focus on the 2021 WEB Du Bois &
 Juneteenth Twitter challenge data - specifically, we’ll be looking at
 the content and metadata of tweets that used the \#DuBoisChallenge
 hashtag to engage with the challenge via a plot submission or with
-commentary. There are a total of 13 different variables - such as
-`like_count`, `lat`, `long`, and `content` - and 445 tweets to study.
-From this data, we hope to learn how people engage with culturally
-significant data visualizations in a social media setting.
+commentary. There are a total of 13 different variables about the tweets
+and Twitter users - such as `like_count`, `lat`, `long`, and `content` -
+and 445 tweets to study. From this data, we hope to learn how people
+engage with culturally significant data visualizations in a social media
+setting.
 
-## Location Analysis
+## Location Analysis of Tweets
 
 *How does user participation and inter-user interaction in the
 \#DuBoisChallenge vary with location?*
 
-### Introduction to Q1
+### Introduction
 
 W.E.B. Du Bois is a national hero in American culture - one would expect
 this hero status to result in overwhelming US participation, but the
-\#DuBoisChallenge attracted interest from all over the world. The goal
-of these sorts of competitions is twofold - to see what sorts of
-innovative choices participants make as well as forming ties and
-relationships between participants. By displaying where participants
-come from and which regions tend to create inter-user relationships
-(tags), we can advise future competitions on which target audiences are
-most receptive - the end goal of such advice is to allow larger
-competitions that attract a larger audience and form more relationships
-among the participants.
+TidyTuesday \#DuBoisChallenge attracted interest from all over the
+world. The goal of these sorts of competitions is twofold - to see what
+sorts of innovative choices participants make as well as to form ties
+and relationships between participants. By displaying where tweets come
+from and which geographical regions tend to have inter-user
+relationships (tags), we can advise future competitions on which target
+audiences are most receptive - the end goal of such advice is to allow
+larger TidyTuesday-like competitions that attract a larger audience and
+form more relationships among the participants.
 
 Interestingly, Twitter metadata contains two different variables that
 represent a user’s location. There is a `location` variable constructed
@@ -78,7 +80,7 @@ publication. Per our question, we’d like to look at how the tweets are
 spread around the world and differences in user behavior with other
 users. Specifically, we’ll look at how users “tag” other users in their
 challenge posts by counting the number of @user occurrences in each
-tweet to create `tag_count`.
+tweet `content` to create `tag_count`.
 
 ### Approach
 
@@ -94,24 +96,26 @@ and countries is atypical, the majority of the observed tweets are in
 the US and the use of states allows tweets from other countries to be
 studied. We proceed to count our cleaned `location` variable and narrow
 the list to the top 10 entries. In order to display counts for discrete
-location names, we chose to utilize a bar plot stratified into regions
-(SE, SW, NE, NW, international) and sorted in descending order within
-regions. Further, we’ve included a text layer with the percentage of
-each bar out of the total tweets from the top 10 locations.
+location names, we chose to utilize a bar plot stratified into and
+colored by regions (SE, SW, NE, NW, international) and sorted in
+descending order within regions. Further, we’ve included a text layer
+with the percentage of each bar out of the total tweets from the top 10
+locations.
 
 Our second visualization aims to display which areas of the world
 published the most tweets during the challenge and how the number of
 tags in a tweet might vary across the globe: the map format arose as a
 natural candidate due to the need to plot coordinates and our goal of
-comparing regions. Rather than create an overcrowded world map, we
-instead chose to use the `long` and `lat` location variables to form two
-maps - one of the Northeastern US and one of Europe - which each display
-a layer of country border data, a layer of points, and a layer of
-annotations. Each tweet point is colored, sized, and given transparency
-values via mapping to `tag_count`, a variable formed by counting the
-occurrence of @user strings within tweet `content`. Further, each point
-is given random noise by geom\_jitter() in order to alleviate some of
-the extreme clustering of points around NYC and the southern UK.
+comparing geographical regions. Rather than create an overcrowded world
+map, we instead chose to use the `long` and `lat` location variables to
+form two maps - one of the Northeastern US and one of Europe - which
+each display a layer of country border data, a layer of points, and a
+layer of annotations. Each tweet point is colored, sized, and given
+transparency values via mapping to `tag_count`, a variable formed by
+counting the occurrence of @user strings within tweet `content`.
+Further, each point is given random noise by geom\_jitter() in order to
+alleviate some of the extreme clustering of points around NYC and the
+southern UK.
 
 ### Analysis
 
@@ -256,7 +260,7 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
     plot.title = element_text(hjust = 0.5, face = "bold"),
     plot.caption = element_text(face = "italic"),
     legend.title = element_blank(),
-    legend.position = c(.848, .25),
+    legend.position = c(.837, .25),
     text = element_text(family = "Times New Roman")
   )
 ```
@@ -266,7 +270,7 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
 ``` r
 set.seed(1234)
 
-ggplot() +
+NEmap <- ggplot() +
   geom_polygon(
     data = canada_map,
     aes(x = long, y = lat, group = group),
@@ -326,12 +330,8 @@ ggplot() +
     xlim = c(-80, -65),
     ylim = c(36, 46)
   )
-```
 
-<img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" style="display: block; margin: auto;" />
-
-``` r
-ggplot() +
+Euromap <- ggplot() +
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
   geom_jitter(
     data = europe_tweets,
@@ -377,9 +377,12 @@ ggplot() +
     nudge_x = -14, nudge_y = -0.3,
     segment.linetype = "dotted"
   )
+
+(NEmap + theme(plot.margin = unit(c(0,25,0,0), "pt"))) +
+(Euromap + theme(plot.margin = unit(c(0,0,0,25), "pt")))
 ```
 
-<img src="README_files/figure-gfm/question-one-plot-two-2.png" width="90%" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" style="display: block; margin: auto;" />
 
 ### Discussion
 
@@ -422,15 +425,15 @@ ambiguity.
 
 ## Twitter Posting Mediums and Audience Engagement
 
-*What is the relationship between the device that publishes a tweet and
-how the audience engages with the author?*
+*What is the relationship between the device that is used to publish a
+tweet and how the audience engages with the author?*
 
 ### Introduction
 
 We’re interested in how the different “mediums” of publishing to Twitter
 are related to the success of the tweet. Based on our own anecdotal
 experiences, we believe that tweets from traditional computers may be
-constructed less impulsively than mobile tweets . Further, there are
+constructed less impulsively than mobile tweets. Further, there are
 socioeconomic factors tied to which device one picks as well as content
 considerations; one can easily publish \#DuBoisChallenge commentary from
 an iPhone, but a full plot submission would be exceedingly difficult. By
@@ -440,43 +443,44 @@ commentary and high-visibility challenge submissions.
 
 For this question, we intend to explore how various audience approval
 metrics vary with the type of device used by the tweet author. To do
-this, we’ll be manipulating the `text` variable - a character of the
-platform/access point that the device used to access Twitter - by
-parsing it through case\_when with specific string detections. Then, we
+this, we’ll begin by manipulating the `text` variable - a character of
+the platform/access point that the device used to access Twitter - by
+parsing it through case\_when with specific string detection. Then, we
 will examine `followers` and `like_count` and their relationship with
 `devicetype`. Unlike the other two variables, the number of followers is
 not exclusively set by one tweet, but by the user’s long-term success.
 In recognition of this disparity, we intend to display the relationship
-between `followers` and `devicetype` with groupings by username and
-`avg_followers`
+between `followers` and `devicetype` with groupings by `username` and
+`avg_followers` across all of a user’s tweets in the data.
 
 ### Approach
 
 Our first plot dives into the relationship between `like_count` and
-`devicetype` by showing side-by-side boxplots stratified by
-`devicetype`; our goal is to directly compare how different platforms
-generate likes and boxplots are especially well-suited to comparing
-similar distributions. Further, the measures of central tendency -
-medians and quartiles - are easier to view in boxplot form and better
-communicate the audience’s reaction to a tweet. Boxplots cannot
-accommodate large numbers of groups easily, however, so we chose to
-narrow our analysis to the three device types that form the overwhelming
-majority of the data (iPhone, Android, and Web App). There is an
-incredibly strong right skew in the like counts, but applying a
-log-transform on the x-axis allows all the data to be visible.
+`devicetype` by showing side-by-side boxplots faceted by `devicetype`;
+our goal is to directly compare how different platforms may generate
+likes and boxplots are especially well-suited to comparing similar
+distributions. Further, the measures of central tendency - medians and
+quartiles - are easier to view in boxplot form and better communicate
+the audience’s reaction to a tweet. Boxplots cannot accommodate large
+numbers of groups easily, however, so we chose to narrow our analysis to
+the three device types that form the overwhelming majority of the data
+(iPhone, Android, and Web App). There is an incredibly strong right skew
+in the like counts, but applying a log-transform on the x-axis allows
+all the data to be visible.
 
-Our second plot shows the distribution of follower count per user
+Our second plot shows the distribution of `followers` count per user
 stratified across the three most popular device types. In order to
 assign each user a single follower count and device type, we use the
-average number of followers across all their tweets and assign a device
-type based on the user’s most common way to access twitter. Thus, the
-plot examines the relationship between the primary device that a user
-owns and their average number of followers during the competition. We
-chose to show the distributions of follower count as density plots in
-order to better examine the shapes of the distributions; we’re
-interested in not only typical users, but also “extreme” users from the
-right tail of the distribution. In order to make these extreme values
-more visible, a log scale is applied to average follower counts.
+average number of followers across all their tweets (`avg_followers`)
+and assign a device type based on the user’s most common way to post on
+twitter. Thus, the plot examines the relationship between the primary
+device that a user owns and their average number of followers while
+participating in the TidyTuesday competition. We chose to show the
+distributions of follower count as density plots in order to better
+examine the shapes of the distributions; we’re interested in not only
+typical users, but also “extreme” users from the right tail of the
+distribution. In order to make these extreme values more visible, a log
+scale is applied to average follower counts.
 
 ### Analysis
 
@@ -547,7 +551,7 @@ ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
 <img src="README_files/figure-gfm/question-two-plot-one-1.png" width="90%" style="display: block; margin: auto;" />
 
 ``` r
-# Plot drops NAs and tweets with 0 likes since log(0) is undefined
+# Plot drops NAs 
 ggplot(
   data = joined_devices_follower,
   aes(x = avg_followers, fill = devicetype)
@@ -582,38 +586,39 @@ device types and their number of likes - the presence of the logarithmic
 scale implies that a “symmetric” box is actually strongly right-skewed.
 The strongest right skew and highest median number of likes belongs to
 Web App tweets. One possible explanation is the challenge’s format -
-most tweets are either going to be a plot recreation or commentary on
-another plot. We suspect that plots are disproportionately published by
-web apps due to screen size required to work with data visualization -
-since plots will generally earn more viewership than commentary, web app
-posts are more likely to attain superstar status.
+most tweets are either going to be a detailed plot recreation or
+commentary on another plot. We suspect that plots are disproportionately
+published by web apps due to screen size required to work with data
+visualization - since plots will generally earn more viewership than
+commentary, web app posts are more likely to attain superstar status.
 
 Our second distribution examines average followers rather than likes in
 order to assess long-term success rather than individual post success.
 Overall, Android tweets have a flat distribution while iPhones and Web
 Apps have left and right skew in the plot, respectively. However, the
 use of a logarithmic scale means that these shapes correspond to
-strongly right-skewed data. Of these distributions, web app tweets are
+strongly right-skewed data. Of these distributions, Web App tweets are
 skewed the furthest to the right followed by Androids and iPhones. In
 terms of modal values in the distributions, iPhones have the sharpest
-and largest peak followed by a slightly lower mode for web apps and no
+and largest peak followed by a slightly lower mode for Web Apps and no
 clear peak for Android tweets.
 
-The finding from both visualizations that web app users are strongly
-skewed towards positive audience reception may be indicative of the fact
-that it is much easier to type out and structure tweets on a computer
-than it is on a phone. In fact, one study from Grammarly showed that
-people make five times as many writing errors on their phone than on a
-PC. This may be one potential reason why tweets authored on a Web App
-device seem to attract more likes than those authored on a mobile device
-like an Android or iPhone – they could be written more methodically and
-profoundly. Importantly, the author may have wanted to craft the tweet
-more carefully because they had more substantive information to share,
-such as a plot made for the TidyTuesday challenge versus a reaction to a
-plot someone else shared. It thus follows that tweets crafted using the
-Web App would result in more likes, since we would expect users to be
-more engaged in a visualization than simply reaction to a visualization.
-We are unfortunately limited by the lack of a variable to distinguish
+The finding from both visualizations that Web App users are strongly
+skewed towards positive audience reception in the short term and long
+term may be indicative of the fact that it is much easier to type out
+and structure tweets on a computer than it is on a phone. In fact, one
+study from Grammarly showed that people make five times as many writing
+errors on their phone than on a PC. This may be one potential reason why
+tweets authored on a Web App device seem to attract more likes than
+those authored on a mobile device like an Android or iPhone – they could
+be written more methodically and profoundly. Importantly, the author may
+have wanted to craft the tweet more carefully because they had more
+substantive information to share, such as a plot made for the
+TidyTuesday challenge versus a reaction to a plot someone else shared.
+It thus follows that tweets crafted using the Web App would result in
+more likes, since we would expect users to be more engaged in a
+visualization than simply reaction to a visualization. We are
+unfortunately limited by the lack of a variable to easily distinguish
 challenge submissions and commentary as well as the correlational nature
 of our Twitter data.
 
