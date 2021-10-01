@@ -1,6 +1,6 @@
 ---
 title: Twitter Trends from the \#DuBoisChallenge
-author: by Ctrl Alt Elite
+author: by Ctrl+Alt+Elite
 output: github_document
 editor_options: 
   chunk_output_type: inline
@@ -255,7 +255,7 @@ EU_locations <- tribble(
 )
 ```
 
-```{r question-one-plot-one}
+```{r question-one-plot-one, fig.align = 'center'}
 ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
   geom_col() +
   geom_text(aes(label = percent_tweets, color = region),
@@ -285,7 +285,7 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
   )
 ```
 
-```{r question-one-plot-two, warning = FALSE}
+```{r question-one-plot-two, warning = FALSE, fig.align = 'center'}
 set.seed(1234)
 
 ggplot() +
@@ -468,7 +468,7 @@ joined_devices_follower <- inner_join(users_and_devicetype,
     devicetype == "Android")
 ```
 
-```{r question-two-plot-one, warning = FALSE}
+```{r question-two-plot-one, warning = FALSE, fig.align = 'center'}
 # Plot drops NAs and tweets with 0 likes since log(0) is undefined
 ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
   facet_wrap(~devicetype, ncol = 1) +
@@ -493,7 +493,7 @@ ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
   )
 ```
 
-```{r question-two-plot-two, warning = FALSE}
+```{r question-two-plot-two, warning = FALSE, fig.align = 'center'}
 # Plot drops NAs and tweets with 0 likes since log(0) is undefined
 ggplot(
   data = joined_devices_follower,

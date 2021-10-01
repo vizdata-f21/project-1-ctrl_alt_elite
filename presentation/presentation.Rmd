@@ -1,6 +1,6 @@
 ---
 title: "Twitter Trends in #DuBoisChallenge"
-author: "Ctrl Alt Elite <br> Andrew Blosse, Anna Greenleaf, Sana Pashankar, & Raghav Rasal"
+author: "Ctrl+Alt+Elite <br> Andrew Blosse, Anna Greenleaf, Sana Pashankar, & Raghav Rasal"
 institute: "Duke University"
 date: "`r Sys.Date()`"
 output:
@@ -24,7 +24,6 @@ library(showtext)
 library(ggrepel)
 library(patchwork)
 
-
 library(tidyverse)
 library(maps)
 library(sf)
@@ -37,7 +36,6 @@ library(colorspace)
 library(scales)
 library(ggrepel)
 library(RColorBrewer)
-
 ```
 
 ```{r set-default-figure-parameters, echo = FALSE}
@@ -63,17 +61,16 @@ style_xaringan(
 
 ## Introduction
 
-- William Edward Burghardt Du Bois (W.E.B. Du Bois) was an American data 
-visualization expert whose work challenged racist notions
+- W.E.B. Du Bois was an American data visualization expert whose work challenged 
+racist notions
 
-- The #DuBoisChallenge encouraged creative recreations of his visualizations in a 
+- \#DuBoisChallenge encouraged creative recreations of his visualizations in a 
 modern context
 
-- Dataset consists of tweets that include "#DuBoisChallenge" and their various 
-characteristics such as location, number of retweets, number of followers etc.
+- Dataset consists of 445 tweets that include "#DuBoisChallenge" 
 
-- Motivation to analyze dataset - aim to dive deeper into how people across the
-world engage with history and data visualizations through social media
+- Aim to dive deeper into how people across the world engage with history and 
+data visualizations through social media
 
 ```{r echo = FALSE, out.width = "20%", fig.align = "center"}
 include_graphics("images/dubois285.jpeg")
@@ -239,15 +236,13 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
 ```
 
 
-- Seeking to understand 
-what the most popular 
-locations at the time
- of tweets were for 
- the #DuBoisChallenge.
+- Shows most common user
+ locations in Twitter
+ bio for #DuBoisChallenge
 - Shows most of the Twitter 
-  challenge activity is 
-  occurring in the US
-- Most represented home 
+ challenge activity is 
+ occurring in the US
+- Most represented user bio 
  location is New York
 
 ---
@@ -446,8 +441,7 @@ ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
   )
 ```
 
-- Shows the relationship between like count and the three most popular device types
-- Distribution of followers is heavily right skewed for Web App + Android
+- Median number of likes for Web App is greater than Android, iPhone
 
 ---
 
@@ -481,9 +475,7 @@ ggplot(
 ```
 
 
-- Shows the distribution of followers based on the three most popular device types  
-- Web App tweets had the highest median number of followers
-- Indicate the ease of writing tweets on a computer vs phone
+- May indicate difference in constructing tweets on computer vs. phone
 
 
 ---
@@ -491,5 +483,3 @@ ggplot(
 class: inverse, middle, center
 
 # Thank you for listening!
-
----
