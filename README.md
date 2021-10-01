@@ -1,8 +1,9 @@
 Twitter Trends from the \#DuBoisChallenge
 ================
-Ctrl Alt Elite
+by Ctrl Alt Elite
 
 ``` r
+# Package messages suppressed
 library(tidyverse)
 library(maps)
 library(sf)
@@ -14,6 +15,7 @@ library(stringr)
 library(colorspace)
 library(scales)
 library(ggrepel)
+library(RColorBrewer)
 ```
 
 ``` r
@@ -85,6 +87,8 @@ The following variables are included in the data set:
   - `lat` (double): Latitude of user
   - `long` (double): Longitude of user
 
+## Question 1 \<- Update title to relate to the question you’re answering
+
 ### Introduction
 
 (1-2 paragraphs) Introduction to the question and what parts of the
@@ -153,51 +157,54 @@ required to do so. All plots must be made with ggplot2. Do not use base
 R or lattice plotting functions.
 
 ``` r
+tweets <- tweets %>%
+  mutate(tag_count = str_count(content, "@"))
+
 tweets_locations <- tweets %>%
   filter(!str_detect(location, "@"), !str_detect(location, ":")) %>%
-  mutate(location_pre_comma = gsub(",.*", "", location)) %>%
-  mutate(location_pre_comma = case_when(
-    location_pre_comma == "北京" ~ "Beijing",
-    location_pre_comma == "God's earth" ~ "NA",
-    location_pre_comma == "The City College of New York" ~ "New York",
-    location_pre_comma == "World" ~ "NA",
-    location_pre_comma == "he/they" ~ "NA",
-    location_pre_comma == "At the home office" ~ "NA",
-    location_pre_comma == "Deutschland" ~ "Germany",
-    location_pre_comma == "Distrito Federal" ~ "Mexico City",
-    location_pre_comma == "down in dey wid em" ~ "NA",
-    location_pre_comma == "Forde-Obama Hall" ~ "NA",
-    location_pre_comma == "France & UK" ~ "NA",
-    location_pre_comma == "Lil’ Rudyshire" ~ "NA",
-    location_pre_comma == "MIT" ~ "Boston",
-    location_pre_comma == "New Yorker" ~ "New York",
-    location_pre_comma == "OAK / NYC / ATL / The World" ~ "NA",
-    location_pre_comma == "SP" ~ "NA",
-    location_pre_comma == "Toronto || Ottawa" ~ "NA",
-    location_pre_comma == "Tx" ~ "Texas",
-    location_pre_comma == "UK" ~ "United Kingdom",
-    location_pre_comma == "USA" ~ "United States",
-    location_pre_comma == "Worldwide" ~ "NA",
-    TRUE ~ location_pre_comma
-  ))
-
-tweets_locations <- tweets_locations %>%
-  mutate(plot_state = case_when(
-    location_pre_comma == "Nashville" ~ "Tennessee",
-    location_pre_comma == "Merced" ~ "California",
-    location_pre_comma == "Vienna" ~ "Austria",
-    location_pre_comma == "Madison" ~ "Wisconsin",
-    location_pre_comma == "Minneapolis" ~ "Minnesota",
-    location_pre_comma == "Philadelphia" ~ "Pennsylvania",
-    location_pre_comma == "Boston" ~ "Massachusetts",
-    location_pre_comma == "London" ~ "United Kingdom",
-    location_pre_comma == "Edinburgh" ~ "United Kingdom",
-    location_pre_comma == "Amherst" ~ "Massachusetts",
-    location_pre_comma == "Buffalo" ~ "New York",
-    location_pre_comma == "Cambridge" ~ "Massachusetts",
-    location_pre_comma == "San Diego" ~ "California",
-    TRUE ~ as.character(location_pre_comma)
-  ))
+  mutate(
+    location_pre_comma = gsub(",.*", "", location),
+    location_pre_comma = case_when(
+      location_pre_comma == "北京" ~ "Beijing",
+      location_pre_comma == "God's earth" ~ "NA",
+      location_pre_comma == "The City College of New York" ~ "New York",
+      location_pre_comma == "World" ~ "NA",
+      location_pre_comma == "he/they" ~ "NA",
+      location_pre_comma == "At the home office" ~ "NA",
+      location_pre_comma == "Deutschland" ~ "Germany",
+      location_pre_comma == "Distrito Federal" ~ "Mexico City",
+      location_pre_comma == "down in dey wid em" ~ "NA",
+      location_pre_comma == "Forde-Obama Hall" ~ "NA",
+      location_pre_comma == "France & UK" ~ "NA",
+      location_pre_comma == "Lil’ Rudyshire" ~ "NA",
+      location_pre_comma == "MIT" ~ "Boston",
+      location_pre_comma == "New Yorker" ~ "New York",
+      location_pre_comma == "OAK / NYC / ATL / The World" ~ "NA",
+      location_pre_comma == "SP" ~ "NA",
+      location_pre_comma == "Toronto || Ottawa" ~ "NA",
+      location_pre_comma == "Tx" ~ "Texas",
+      location_pre_comma == "UK" ~ "United Kingdom",
+      location_pre_comma == "USA" ~ "United States",
+      location_pre_comma == "Worldwide" ~ "NA",
+      TRUE ~ location_pre_comma
+    ),
+    plot_state = case_when(
+      location_pre_comma == "Nashville" ~ "Tennessee",
+      location_pre_comma == "Merced" ~ "California",
+      location_pre_comma == "Vienna" ~ "Austria",
+      location_pre_comma == "Madison" ~ "Wisconsin",
+      location_pre_comma == "Minneapolis" ~ "Minnesota",
+      location_pre_comma == "Philadelphia" ~ "Pennsylvania",
+      location_pre_comma == "Boston" ~ "Massachusetts",
+      location_pre_comma == "London" ~ "United Kingdom",
+      location_pre_comma == "Edinburgh" ~ "United Kingdom",
+      location_pre_comma == "Amherst" ~ "Massachusetts",
+      location_pre_comma == "Buffalo" ~ "New York",
+      location_pre_comma == "Cambridge" ~ "Massachusetts",
+      location_pre_comma == "San Diego" ~ "California",
+      TRUE ~ as.character(location_pre_comma)
+    )
+  )
 
 top_10_locations <- tweets_locations %>%
   count(plot_state) %>%
@@ -205,11 +212,6 @@ top_10_locations <- tweets_locations %>%
   filter(plot_state != "NA") %>%
   head(10) %>%
   mutate(
-    internat = case_when(
-      plot_state == "United Kingdom" ~ "International",
-      plot_state == "Austria" ~ "International",
-      TRUE ~ "Domestic"
-    ),
     region = case_when(
       plot_state == "New York" ~ "US: Northeast",
       plot_state == "New Jersey" ~ "US: Northeast",
@@ -217,53 +219,24 @@ top_10_locations <- tweets_locations %>%
       plot_state == "Massachusetts" ~ "US: Northeast",
       plot_state == "Tennessee" ~ "US: South",
       plot_state == "California" ~ "US: West",
-      plot_state == "Austria"~ "Europe",
+      plot_state == "Austria" ~ "Europe",
       plot_state == "United Kingdom" ~ "Europe",
-      plot_state == "Wisconsin"~ "US: Midwest",
+      plot_state == "Wisconsin" ~ "US: Midwest",
       plot_state == "Minnesota" ~ "US: Midwest"
     ),
-    plot_state = fct_relevel(plot_state, c("New York", "New Jersey", "Massachusetts",
-                                           "Pennsylvania","Austria", "United Kingdom",
-                                           "Minnesota",
-                                           "Wisconsin", "Tennessee", "California")),
+    region = fct_relevel(region, c(
+      "US: Northeast", "Europe", "US: Midwest", "US: South",
+      "US: West"
+    )),
+    plot_state = fct_relevel(plot_state, c(
+      "New York", "New Jersey", "Massachusetts",
+      "Pennsylvania", "Austria", "United Kingdom",
+      "Minnesota",
+      "Wisconsin", "Tennessee", "California"
+    )),
     plot_state = fct_rev(plot_state),
-    region=fct_relevel(region, c("US: Northeast", "Europe", "US: Midwest","US: South", 
-                      "US: West")), 
     percent_tweets = paste(round(n / sum(n), 4) * 100, "%")
   )
-```
-
-``` r
-library(RColorBrewer)
-ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
-  geom_col() +
-  geom_text(aes(label = percent_tweets, color = region),
-    size = 2.5,
-    nudge_x = 8,
-    show.legend = FALSE
-  ) +
-  scale_fill_brewer(palette="Set1") +
-  scale_color_brewer(palette="Set1") +
-  scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
-  labs(
-    y = "User Location in Twitter Bio",
-    x = "Number of Tweets",
-    title = "Top 10 #DuBoisChallenge Tweet Locations",
-    fill = "Location"
-  ) +
-  theme_minimal() +
-  theme( plot.title = element_text(hjust = 0.5, face = "bold"),
-    text = element_text(family = "Times New Roman"),
-    legend.title = element_blank(),
-    legend.position = c(.85, .25)
-  )
-```
-
-<img src="README_files/figure-gfm/question-one-plot-one-1.png" width="90%" />
-
-``` r
-tweets <- tweets %>%
-  mutate(tag_count = str_count(content, "@"))
 
 northeast_tweets <- tweets %>%
   filter(
@@ -294,10 +267,42 @@ US_locations <- tribble(
 EU_locations <- tribble(
   ~city, ~lat, ~long,
   "London", 51.5074, -0.1278,
-  "Vienna", 48.2082, 16.3738, 
-  "Rome",41.9028, 12.4964
+  "Vienna", 48.2082, 16.3738,
+  "Rome", 41.9028, 12.4964
 )
 ```
+
+``` r
+ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
+  geom_col() +
+  geom_text(aes(label = percent_tweets, color = region),
+    size = 2.5,
+    nudge_x = 8,
+    show.legend = FALSE
+  ) +
+  scale_fill_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_continuous(
+    breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)
+  ) +
+  labs(
+    title = "Top 10 #DuBoisChallenge Tweet Locations",
+    caption = "% calculated out of top 10",
+    x = "Number of Tweets",
+    y = "User Location in Twitter Bio",
+    fill = "Location"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.caption = element_text(face = "italic"),
+    legend.title = element_blank(),
+    legend.position = c(.848, .25),
+    text = element_text(family = "Times New Roman")
+  )
+```
+
+<img src="README_files/figure-gfm/question-one-plot-one-1.png" width="90%" />
 
 ``` r
 set.seed(1234)
@@ -320,7 +325,8 @@ ggplot() +
     aes(
       x = long, y = lat, size = tag_count, color = tag_count,
       alpha = tag_count
-    ))  +
+    )
+  ) +
   labs(
     title = "#DuBoisChallenge Tweets",
     subtitle = "in Northeastern U.S. & Canada\n",
@@ -342,22 +348,28 @@ ggplot() +
     alpha = guide_legend()
   ) +
   theme(
-    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, face = "bold"),
     plot.subtitle = element_text(hjust = 0.5, face = "italic"),
-    plot.title = element_text(hjust = 0.5, face = "bold"), 
     plot.caption = element_text(hjust = 0.5),
+    legend.position = "bottom",
     panel.border = element_rect(color = "black", fill = NA, size = .75),
     panel.background = element_rect(color = "black", fill = "lightblue"),
     text = element_text(family = "Times New Roman")
-  )+
-  geom_text_repel(data=US_locations, aes(x=long, y=lat, label=city), size=3, nudge_x = -0.15, nudge_y=0.95, segment.linetype="dotted")+
+  ) +
+  geom_text_repel(
+    data = US_locations,
+    aes(x = long, y = lat, label = city),
+    size = 3, nudge_x = -0.15,
+    nudge_y = 0.95,
+    segment.linetype = "dotted"
+  ) +
   coord_map(
     xlim = c(-80, -65),
     ylim = c(36, 46)
   )
 ```
 
-<img src="README_files/figure-gfm/question-one-plot-two-northeast-1.png" width="90%" />
+<img src="README_files/figure-gfm/question-one-plot-two-1.png" width="90%" />
 
 ``` r
 ggplot() +
@@ -369,7 +381,6 @@ ggplot() +
       alpha = tag_count
     )
   ) +
-   #geom_sf_label(data = world_map, aes(label = name), label.padding = unit(1, "mm")) +
   coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
   labs(
     title = "#DuBoisChallenge Tweets",
@@ -392,18 +403,24 @@ ggplot() +
     alpha = guide_legend()
   ) +
   theme(
-    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, face = "bold"),
     plot.subtitle = element_text(hjust = 0.5, face = "italic"),
-    plot.title = element_text(hjust = 0.5, face = "bold"), 
     plot.caption = element_text(hjust = 0.5),
+    legend.position = "bottom",
     panel.border = element_rect(color = "black", fill = NA, size = .75),
     panel.background = element_rect(color = "black", fill = "lightblue"),
     text = element_text(family = "Times New Roman")
-  )+
-  geom_text_repel(data=EU_locations, aes(x=long, y=lat, label=city), size=3, nudge_x = -14, nudge_y=-0.3, segment.linetype="dotted")
+  ) +
+  geom_text_repel(
+    data = EU_locations,
+    aes(x = long, y = lat, label = city),
+    size = 3,
+    nudge_x = -14, nudge_y = -0.3,
+    segment.linetype = "dotted"
+  )
 ```
 
-<img src="README_files/figure-gfm/question-one-plot-two-europe-1.png" width="90%" />
+<img src="README_files/figure-gfm/question-one-plot-two-2.png" width="90%" />
 
 ### Discussion
 
@@ -452,14 +469,13 @@ tweets <- tweets %>%
     str_detect(text, "Twitter for iPad") ~ "iPad",
     str_detect(text, "TweetDeck") ~ "TweetDeck",
     str_detect(text, "Crowdfire App") ~ "Crowdfire App",
-    str_detect(text, "Twitter for Mac") ~ "Mac"))
+    str_detect(text, "Twitter for Mac") ~ "Mac"
+  ))
 
-tweets_device <- tweets %>% 
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")
-```
-
-``` r
-# Plot drop's NAs and tweets with 0 likes since log(0) is undefined
+tweets_device <- tweets %>%
+  filter(devicetype == "iPhone" |
+    devicetype == "Web App" |
+    devicetype == "Android")
 
 users_and_devicetype <- tweets %>%
   group_by(username) %>%
@@ -471,56 +487,71 @@ users_and_devicetype <- tweets %>%
 
 users_and_avg_follower <- tweets %>%
   group_by(username) %>%
-  summarise(avg_followers = mean(followers)) 
+  summarise(avg_followers = mean(followers))
 
-
-inner_join(users_and_devicetype, users_and_avg_follower, by = "username") %>%
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
-  ggplot( aes(x = avg_followers, fill = devicetype)) +
-  geom_density(show.legend = FALSE) +
-  facet_wrap(. ~ devicetype,  nrow = 3) +
-  theme_minimal() +
-   scale_x_log10(labels = label_number(big.mark = ","))+
-  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  scale_y_continuous(labels = label_number(accuracy = .00001)) +
-  labs(
-    title = "Distribution of Follower Count",
-    subtitle = "Stratified by Where Tweet Was Posted From",
-    x = "Number of Followers",
-    y = NULL, caption= "x-axis uses logarithmic spacing"
-  ) +
-  theme(text = element_text(family = "Times New Roman"), 
-        plot.subtitle = element_text(hjust = 0.5, face = "italic"),
-    plot.title = element_text(hjust = 0.5, face = "bold"), plot.caption = element_text(face="italic"))
+joined_devices_follower <- inner_join(users_and_devicetype,
+  users_and_avg_follower,
+  by = "username"
+) %>%
+  filter(devicetype == "iPhone" |
+    devicetype == "Web App" |
+    devicetype == "Android")
 ```
 
-<img src="README_files/figure-gfm/q2-plot-1-1.png" width="90%" />
-
 ``` r
-# Plot drop's NAs and tweets with 0 likes since log(0) is undefined
-
-tweets%>%
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")%>%
-  ggplot(aes(x = like_count, fill = devicetype)) +
-  facet_wrap(~devicetype, ncol=1) +
+# Plot drops NAs and tweets with 0 likes since log(0) is undefined
+ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
+  facet_wrap(~devicetype, ncol = 1) +
   geom_boxplot(show.legend = FALSE) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  scale_x_log10()+
+  scale_x_log10() +
   labs(
-    y = NULL, x = "Number of Likes",
     title = "Distribution of Likes",
-    subtitle = "Stratified by Where Tweet Was Posted From", caption= "x-axis uses logarithmic spacing (tweets with 0 likes are ommited)"
+    subtitle = "Stratified by Where Tweet Was Posted From",
+    caption = "x-axis uses logarithmic scale (tweets with 0 likes are ommited)",
+    x = "Number of Likes",
+    y = NULL 
   ) +
   theme_minimal() +
-  theme(plot.subtitle = element_text(hjust = 0.5, face = "italic"),
-    plot.title = element_text(hjust = 0.5, face = "bold"), plot.caption = element_text(face="italic", hjust=0.5), 
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.caption = element_text(face = "italic", hjust = 0.5),
     axis.ticks = element_blank(),
     axis.text.y = element_blank(),
     text = element_text(family = "Times New Roman")
   )
 ```
 
-<img src="README_files/figure-gfm/question-two-plot-two-log-1.png" width="90%" />
+<img src="README_files/figure-gfm/question-two-plot-one-1.png" width="90%" />
+
+``` r
+# Plot drops NAs and tweets with 0 likes since log(0) is undefined
+ggplot(
+  data = joined_devices_follower,
+  aes(x = avg_followers, fill = devicetype)
+) +
+  geom_density(show.legend = FALSE) +
+  facet_wrap(. ~ devicetype, nrow = 3) +
+  theme_minimal() +
+  scale_x_log10(labels = label_number(big.mark = ",")) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  scale_y_continuous(labels = label_number(accuracy = .00001)) +
+  labs(
+    title = "Distribution of Follower Count",
+    subtitle = "Stratified by Where Tweet Was Posted From",
+    x = "Number of Followers",
+    y = NULL, caption = "x-axis uses logarithmic scale"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.caption = element_text(face = "italic"),
+    text = element_text(family = "Times New Roman")
+  )
+```
+
+<img src="README_files/figure-gfm/question-two-plot-two-1.png" width="90%" />
 
 ### Discussion
 
@@ -534,15 +565,28 @@ Our presentation can be found [here](presentation/presentation.html).
 
 ## Data
 
-Include a citation for your data here. See
-<http://libraryguides.vu.edu.au/c.php?g=386501&p=4347840> for guidance
-on proper citation for datasets. If you got your data off the web, make
-sure to note the retrieval date.
+Starks, A, Hillery, A, Tyler, S 2021, *Du Bois and Juneteenth revisited:
+TidyTuesday week 8 of 2021*, electronic dataset, tidytuesday, retrieved
+13 September 2021,
+<https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md>.
 
 ## References
 
-List any references here. You should, at a minimum, list your data
-source.
+[Data
+Source](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md)
 
-world map/eu code taken from
-<https://www.r-bloggers.com/2019/04/zooming-in-on-maps-with-sf-and-ggplot2/>
+[Grammarly
+Article](https://www.theladders.com/career-advice/study-you-make-5-times-as-many-errors-writing-on-your-phone-than-on-your-computer)
+
+[Android Logo
+Color](https://encycolorpedia.com/a4c639#:~:text=The%20hexadecimal%20color%20code%20%23a4c639,%25%20green%20and%2022.35%25%20blue.)
+
+[Apple Logo Color](https://www.brandcolorcode.com/apple)
+
+[Twitter Logo
+Color](https://www.onlinepalette.com/twitter/#:~:text=Twitter%20uses%20the%20colors%20blue,29%2C%20161%2C%20242)
+
+[Europe
+Map](https://www.r-bloggers.com/2019/04/zooming-in-on-maps-with-sf-and-ggplot2/)
+
+[Latitude and Longitude of Cities](https://www.google.com/maps)
