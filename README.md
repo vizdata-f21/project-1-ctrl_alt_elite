@@ -635,21 +635,21 @@ TidyTuesday week 8 of 2021*, electronic dataset, tidytuesday, retrieved
 
 ## References
 
-[Data
-Source](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md)
-
-[Grammarly
-Article](https://www.theladders.com/career-advice/study-you-make-5-times-as-many-errors-writing-on-your-phone-than-on-your-computer)
-
 [Android Logo
 Color](https://encycolorpedia.com/a4c639#:~:text=The%20hexadecimal%20color%20code%20%23a4c639,%25%20green%20and%2022.35%25%20blue.)
 
 [Apple Logo Color](https://www.brandcolorcode.com/apple)
 
-[Twitter Logo
-Color](https://www.onlinepalette.com/twitter/#:~:text=Twitter%20uses%20the%20colors%20blue,29%2C%20161%2C%20242)
+[Data
+Source](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-15/readme.md)
 
 [Europe
 Map](https://www.r-bloggers.com/2019/04/zooming-in-on-maps-with-sf-and-ggplot2/)
 
+[Grammarly
+Article](https://www.theladders.com/career-advice/study-you-make-5-times-as-many-errors-writing-on-your-phone-than-on-your-computer)
+
 [Latitude and Longitude of Cities](https://www.google.com/maps)
+
+[Twitter Logo
+Color](https://www.onlinepalette.com/twitter/#:~:text=Twitter%20uses%20the%20colors%20blue,29%2C%20161%2C%20242)
