@@ -36,6 +36,7 @@ library(scales)
 
 library(showtext)
 library(ggrepel)
+library(patchwork)
 ```
 
 ```{r setup, include=FALSE}
@@ -43,7 +44,7 @@ library(ggrepel)
 knitr::opts_chunk$set(
   fig.retina = 3, 
   dpi = 300, 
-  fig.width = 6, 
+  fig.width = 8, 
   fig.asp = 0.618, 
   out.width = "70%"
   )
@@ -64,10 +65,6 @@ class: inverse, middle, center
 
 ## Introduction
 
-```{r pic}
-## trying to add a picture of Dubois onto the intro slide
-```
-
 - William Edward Burghardt Du Bois (W.E.B. Du Bois) was an American data 
 visualization expert whose work challenged racist notions
 
@@ -80,17 +77,23 @@ charactersitics such as location, number of retweets, number of followers etc.
 - Motivation to analyze dataset - aim to dive deeper into how people across the
 world engage with history and data visualizations through social media
 
+```{r echo = FALSE, out.width = "20%", fig.align = "center"}
+include_graphics("images/dubois285.jpeg")
+```
+
+
 ---
 
-## Question #1 : How does general interest of the #DuBois challenge vary geographically?
+class: inverse, middle, center
+
+# Question #1 : How does general interest of the #DuBois challenge vary geographically?
 
 ---
 
-## Question 1 - Plot 1
 
-.pull-left[
+## Question 1 - Location Tweets
+
 ```{r question-one-plot-one-wrangling, echo = FALSE}
-
 
 tweets_locations <- tweets %>%
   filter(!str_detect(location, "@"), !str_detect(location, ":")) %>%
@@ -154,7 +157,7 @@ top_10_locations <- tweets_locations %>%
   )
 ```
 
-```{r question-one-plot-one, echo = FALSE, out.width = "72%"}
+```{r question-one-plot-one, out.width="60%", fig.width=6,echo=FALSE, fig.align = "center"}
 ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
   geom_col() +
   geom_text(aes(label = percent_tweets, color = internat),
@@ -178,25 +181,21 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
     legend.position = c(.85, .17)
   )
 ```
-]
 
-.pull-right[
-- Seeking to understand what the most popular 
-locations at the time of tweets were for the #DuBoisChallenge.
-
-- Shows most of the Twitter challenge activity is occurring in the US
-
-- Most represented home location is in New York
-
-- Most people interested in and interacting with this challenge are in the US
-]
+- Seeking to understand 
+what the most popular 
+locations at the time
+ of tweets were for 
+ the #DuBoisChallenge.
+- Shows most of the Twitter 
+  challenge activity is 
+  occurring in the US
+- Most represented home 
+ location is in New York
 
 ---
 
-## Question 1 - Plot 2
 
-
-.pull-left[
 ```{r question-one-plot-two-wrangling, echo = FALSE, out.width = "72%"}
 tweets <- tweets %>%
   mutate(tag_count = str_count(content, "@"))
@@ -230,7 +229,7 @@ city_locations <- tribble(
 ```
 
 
-```{r question-one-plot-two-northeast, warning = FALSE, echo = FALSE, fig.width = 8}
+```{r question-one-plot-two-northeast, warning = FALSE, out.width="70%", fig.width=4, echo=FALSE}
 # Add labels for states and Europe countries
 
 # Do we need to address showing relative populations like we said we would in
@@ -242,7 +241,7 @@ set.seed(1234)
 #   geom_point(aes(x = Long, y = Lat)) +
 #   geom_text(aes(label = City))
 
-ggplot() +
+plot1 <- ggplot() +
   geom_polygon(
     data = canada_map,
     aes(x = long, y = lat, group = group),
@@ -297,31 +296,14 @@ ggplot() +
   )
   
 ```
-]
 
-.pull-right[
-- Which areas of the world published the most tweets during the challenge and 
- how did the number of  tags in a tweet vary across the globe?
- 
-- Focuses on NE US since that is where most users assigned their location
-
-- Increased tag count in NYC could be due to the city's historical ties to 
- WEB Du Bois and its cultural significance with the 
- African-American community
-]
----
-
-## Question 1 - Plot 3
-
-
-.pull-left[
-```{r question-one-plot-two-europe, echo = FALSE, out.width = "80%"}
+```{r question-one-plot-two-europe, out.width="70%", fig.width=4, echo=FALSE}
 # labels_map <- world_map %>% filter(name %in% c(
 #   "Paris", "London"
 # ))
 
 
-ggplot() +
+plot2 <- ggplot() +
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
   geom_jitter(
     data = europe_tweets,
@@ -364,42 +346,24 @@ ggplot() +
 ```
 
 
-```{r recode-species, echo = FALSE}
-# # In this chunk I'm doing a bunch of analysis that I don't want to present 
-# # in my slides. But I need the resulting data frame for a plot I want to present.
-# penguins_modified <- penguins %>%
-#   mutate(species = fct_other(species, keep = "Adelie"))
-# ```
-# 
-# ```{r plot-penguins, echo = FALSE, warning = FALSE, fig.alt = "Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins."}
-# # Code hidden with echo = FALSE
-# # Uses modified penguins dataset from previous chunk
-# # Play around with height and width until you're happy with the look
-# ggplot(penguins_modified, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
-#   geom_point() + 
-#   theme_minimal()
+## Question 1 - Tweet Maps
+
+```{r out.width="95%", fig.width=8, echo=FALSE, warning = FALSE, fig.center = TRUE}
+(plot1 + theme(plot.margin = unit(c(0,35,0,0), "pt"))) +
+(plot2 + theme(plot.margin = unit(c(0,0,0,35), "pt")))
 ```
-]
-
-
-.pull-left[
-- UK is the most active location in Europe
-
-- Map matches our first visualization’s findings that 
- the UK and Austria hold most of the data
- 
-- Most populated countries in Europe > makes sense to have the most
-  number of people tagged in their tweets
-]
-
----
-## Question 2: Input Question 
 
 ---
 
-## Question 2 - Plot 1
+class: inverse, middle, center
 
-.pull-left[
+# Question 2: How does the type of device a tweet author uses to post inform us about how users engage with the tweet and author?
+
+---
+
+
+## Followers by Device Type
+
 ```{r question-two-plot-one-wrangling, echo = FALSE}
 tweets <- tweets %>%
   mutate(devicetype = case_when(
@@ -416,7 +380,8 @@ tweets_device <- tweets %>%
   filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")
 ```
 
-```{r question-two-plot-one, warning = FALSE, echo = FALSE, out.width = "100%"}
+
+```{r question-two-plot-one, warning = FALSE, out.width="65%", fig.width=6,echo=FALSE, fig.align = "center"}
 # warning = FALSE: purposefully set x bounds to remove outlier data points
 ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
   geom_density(show.legend = FALSE) +
@@ -436,13 +401,20 @@ ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
   ) 
 #+theme(text = element_text(family = "Times New Roman"))
 ```
-] 
+
+- Shows the relationship between like count and the three most popular device types
+- Distribution of followers is heavily right skewed for Web App + Android
+
+
+
+
+
 ---
 
-#Question Two- Plot Two 
+##Likes by Device Type
 
-.pull-left[
-```{r question-two-plot-two-wrangling, echo = FALSE}
+
+```{r question-two-plot-two-wrangling,out.width="100%", fig.width=7, echo=FALSE}
 outliers <- tweets_device %>%
   filter(!is.na(like_count)) %>%
   group_by(devicetype) %>%
@@ -459,7 +431,7 @@ tweets_likes <- tweets_device %>%
   filter(like_count <= round(outliers$farboundary[3]))
 ```
 
-```{r question-two-plot-two, echo = FALSE, out.width = "100%"}
+```{r question-two-plot-two, out.width="62%", fig.width=4, echo=FALSE, warning = FALSE, fig.align = "center"}
 
 tweets%>%
   mutate(loglikes=log(like_count))%>%
@@ -481,68 +453,11 @@ tweets%>%
     #text = element_text(family = "Times New Roman")
   )
 ```
-]
 
-.pull-right[
-- bullets  
--
--
+- Shows the distribution of followers based on the three most popular device types  
+- Web App tweets had the highest median number of followers
+- Indicate the ease of writing tweets on a computer vs phone
 
-]
-
-
-
----
-
-
-
-
-
-## Plot and text
-
-.pull-left[
-- Some text
-- goes here
-]
-.pull-right[
-```{r warning=FALSE, out.width="100%", fig.width=4, echo=FALSE}
-# see how I changed out.width and fig.width from defaults
-# to make the figure bigger
-ggplot(penguins, aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot() +
-  theme_minimal()
-```
-]
-
----
-
-class: inverse, middle, center
-
-# A new section...
-
----
-
-## Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r penguins-table, echo = FALSE}
-kable(head(penguins), format = "html")
-```
-
----
-
-## Images
-
-```{r castle, echo = FALSE, out.width = "40%", fig.align = "center", fig.cap = "Image credit: Danielle Navarro, Percolate."}
-include_graphics("img/watercolour_sys02_img32_percolate.jpg")
-```
-
-Or you can also include a full page image. See next slide.
-
----
-
-background-image: url(img/watercolour_sys02_img32_percolate.jpg)
 
 ---
 
