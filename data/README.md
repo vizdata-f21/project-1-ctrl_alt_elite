@@ -21,9 +21,9 @@ Starks, Allen Hillery, and Sekou Tyler.
 |quote_count      |Number of tweet quotes                |dbl  |
 |text             |Tweet origin (iPhone/Android/Web App) |chr  |
 |username         |Username of poster's Twitter account  |chr  |
-|location         |Self-reported post location           |chr  |
+|location         |Self-reported location in Twitter bio |chr  |
 |followers        |Number of followers (of user)         |dbl  |
 |url              |Web link to tweet                     |chr  |
 |verified         |Is user verified?                     |log  |
-|lat              |Latitude coordinate of user           |dbl  |
-|long             |Longitude coordinate of user          |dbl  |
+|lat              |Latitude of where tweet is published  |dbl  |
+|long             |Longitude of where tweet is published |dbl  |
