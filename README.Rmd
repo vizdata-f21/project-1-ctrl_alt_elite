@@ -38,107 +38,32 @@ tweets <- read.csv("data/tweets.csv")
 
 ## Introduction
 
-(1-2 paragraphs)
-Brief introduction to the dataset.
-You may repeat some of the information about the dataset provided in the introduction to the dataset on the TidyTuesday repository, paraphrasing on your own terms.
-Imagine that your project is a standalone document and the grader has no prior knowledge of the dataset.
+W.E.B Du Bois was one of the most multifaceted and persuasive civil rights leaders in history; one of the channels he used to advance equality was his profound work in data visualization. In order to celebrate his legacy of using visualizations to do good in the world, the #DuBoisChallenge calls upon users to recreate a selection of Du Bois’ visualizations from the 1900 Paris Exposition with the aid of modern tools.   
 
-```{r glimpse-data, echo = FALSE}
-glimpse(tweets)
-```
+For our project, we’re choosing to focus on the 2021 WEB Du Bois & Juneteenth Twitter challenge data - specifically, we’ll be looking at the content and metadata of tweets that used the #DuBoisChallenge hashtag to engage with the challenge via a plot submission or with commentary. There are a total of `r ncol(tweets)` different variables - such as `like_count`, `lat`, `long`, and `content` - and `r nrow(tweets)` tweets to study. From this data, we hope to learn how people engage with culturally significant data visualizations in a social media setting. 
 
-W.E.B DuBois was a famed data visualisation expert who conducted data analysis 
-to challenge the racist notions regarding African Americans in the early 20th
-century. The #DuBoisChallenge celebrates the legacy of W.E.B DuBois by 
-encouraging users to creatively recreate various visualizations from the 1900
-Paris Exposition using modern data visualization tools. 
 
-For our dataset (tweets), we have chosen to examine the 2021 WEB Du Bois & 
-Juneteenth Twitter data where each observation is a tweet from 2021 that uses 
-the DuBoisChallenge hashtag, and the variables are the accompanying metadata 
-such as likes, retweets, and location. The dataset includes `r ncol(tweets)` 
-different variables and a total of `r nrow(tweets)` observations. The data was 
-collected via scraping from Twitter based on the presence of the WEB Du Bois 
-challenge hashtag. 
+## Location Analysis
 
-The following variables are included in the data set:
+*How does user participation and inter-user interaction in the #DuBoisChallenge 
+vary with location?*
 
-- `datetime` (double): Date and time of tweet
-- `content`	(character): Text for tweet
-- `retweet_count` (double): Retweet count for tweet
-- `like_count` (double): Like count for tweet
-- `quote_count`	(double): Quote tweet count for tweet
-- `text` (character): Where tweet was posted from
-- `username` (character): Username of Tweeter
-- `location` (character): Location tweeted from
-- `followers` (double): Followers of the tweeter
-- `url` (character): Canonical url of tweet
-- `verified` (logical): Is user verified?
-- `lat` (double): Latitude of user
-- `long` (double): Longitude of user
 
-## Question 1 <- Update title to relate to the question you’re answering
+### Introduction to Q1
 
-### Introduction
+W.E.B. Du Bois is a national hero in American culture - one would expect this hero status to result in overwhelming US participation, but the #DuBoisChallenge attracted interest from all over the world. The goal of these sorts of competitions is twofold - to see what sorts of innovative choices participants make as well as forming ties and relationships between participants. By displaying where participants come from and which regions tend to create inter-user relationships (tags), we can advise future competitions on which target audiences are most receptive - the end goal of such advice is to allow larger competitions that attract a larger audience and form more relationships among the participants.  
 
-(1-2 paragraphs)
-Introduction to the question and what parts of the dataset are necessary to 
-answer the question. Also discuss why you’re interested in this question.
-
-Since users in this challenge were from all across the world we wanted to create
-visualizations to gauge interest and participation by geographical locations.
-Specifically, there are 2 ways that we operationalized geographical locations:
-home location provided manually by the twitter user (`lat`and `long`) and the 
-location at time of tweet (`location`). We wanted to quantify geographical 
-interest by the number of retweets (`retweet_count`) and number of tweets coming
-from a given location (mutated variable - n), which we will use as our
-dependent variables in the 2 visualizations. 
-
-The reason we were very interested in this questions is because we assumed that
-DuBois' work would mostly be studied and know by Americans, as it depicts 
-experiences of African Americans. However, since people are participating in
-the TidyTuesday challenge across the globe, we wanted to understand if and where 
-there is widespread interest in DuBois' work from an international perspective.
+Interestingly, Twitter metadata contains two different variables that represent a user’s location. There is a `location` variable constructed either from the user’s bio or their use of a geo-tag and there are `lat` and `long`: the coordinates of the device at the time of tweet publication. Per our question, we’d like to look at how the tweets are spread around the world and differences in user behavior with other users. Specifically, we’ll look at how users “tag” other users in their challenge posts by counting the number of @user occurrences in each tweet to create `tag_count`.  
 
 
 ### Approach
 
-(1-2 paragraphs)
-Describe what types of plots you are going to make to address your question.
-For each plot, provide a clear explanation as to why this plot (e.g. boxplot, barplot, histogram, etc.) is best for providing the information you are asking about. 
-The two plots should be of different types, and at least one of the two plots needs to use either color mapping or facets.
+In our first visualization, we will investigate the `location` character variable. Due to the self-reported nature of `location`, many of the entries are jokes, ambiguous, or in inconsistent formats. To address the latter problem, we had to perform manual cleaning -  US tweets tend to record the state with some use of city names while international tweets use a mixture of country and city labels. In order to standardize, we converted US cities into their respective states and converted significant foreign cities into country groups. While comparing states and countries is atypical, the majority of the observed tweets are in the US and the use of states allows tweets from other countries to be studied. We proceed to count our cleaned `location` variable and narrow the list to the top 10 entries. In order to display counts for discrete location names, we chose to utilize a bar plot stratified into regions (SE, SW, NE, NW, international) and sorted in descending order within regions. Further, we’ve included a text layer with the percentage of each bar out of the total tweets from the top 10 locations.
 
-For our 1st visualization, we wanted to understand what the most popular 
-locations at the time of tweets were for the #DuBoisChallenge. To do so, we 
-first cleaned the `location` column to ensure that we only had valid locations.
-For a few cases, we had to manually either drop the data point or rename them
-appropriately. After this, we added the corresponding state/international 
-country for each data point in the `location` column. We then ranked the top 10
-states/international countries (excluding NA's) based on the number of total 
-acuumulated in that location. To visualize this, we decided to utilize a bar 
-plot since it is easy to visualize the number of tweets from locations in 
-descending order. We also decided to fill the bars based on if they were in the
-US or not, which allows users to distinguish the different types of locations. 
-We also decided to state the percentages on top of each bar plot to make it 
-more intuitive and accessible. 
-
-For our 2nd visualization, we wanted to physically map out the trends in terms
-of the home locations of the twitter users. Based on the results of our 1st 
-visualization, we wanted to specifically look into the locations that seemed to
-be the most active in terms tweeting with the #DuBoisChallenge. Since we had
-`lat` and `long`, we wanted to visualize these points on a map, so that we could
-have more precise home locations of the twitter users and readers can better
-spatially understand participation across the world. We also wanted to 
-understand the sharing of tweets, and therefore, we sized each point on the map
-based on `retweet_count`. 
+Our second visualization aims to display which areas of the world published the most tweets during the challenge and how the number of tags in a tweet might vary across the globe: the map format arose as a natural candidate due to the need to plot coordinates and our goal of comparing regions. Rather than create an overcrowded world map, we instead chose to use the `long` and `lat` location variables to form two maps - one of the Northeastern US and one of Europe - which each display a layer of country border data, a layer of points, and a layer of annotations.
+Each tweet point is colored, sized, and given transparency values via mapping to `tag_count`, a variable formed by counting the occurrence of @user strings within tweet `content`. Further, each point is given random noise by geom_jitter() in order to alleviate some of the extreme clustering of points around NYC and the southern UK.
 
 ### Analysis
-
-(2-3 code blocks, 2 figures, text/code comments as needed)
-In this section, provide the code that generates your plots. Use scale functions to provide nice axis labels and guides.
-You are welcome to use theme functions to customize the appearance of your plot, but you are not required to do so.
-All plots must be made with ggplot2. Do not use base R or lattice plotting functions.
-
 ```{r question-one-wrangling}
 tweets <- tweets %>%
   mutate(tag_count = str_count(content, "@"))
@@ -399,35 +324,32 @@ ggplot() +
 
 ### Discussion
 
-(1-3 paragraphs)
-In the Discussion section, interpret the results of your analysis. Identify any trends revealed (or not revealed) by the plots.
-Speculate about why the data looks the way it does.
+Our first plot clearly shows that most of the Twitter challenge activity is occurring in the US; eight of the ten locations were US states even though these states were being directly compared to entire foreign countries. The only international locations in the plot - the UK and Austria - account for merely 7.88% out of the top 10 locations. This confirms our initial assumption that most people interested in and interacting with this challenge are in the US. Domestically, four of the top ten locations are northeastern states: an unsurprising find when considering population figures and Du Bois’s legacy in NYC. Moving forward in our analysis, we chose to focus on the Northeast and Europe to study their users and how they may engage each other differently in the two regions. 
 
-## Question 2 <- Update title to relate to the question you’re answering
+Our second visualization is a set of two maps of the Northeastern United States and Europe with point coloring/sizing by the number of @tags. One advantage of the `long` and `lat` variable over the previous plot’s `location` is that we can more precisely display areas where tweet clustering occurs rather than user home locations. For example, the Northeast map shows the dominant NYC cluster extending outwards towards Newark, NJ while another small cluster exists around Baltimore. In Europe, there is a low-density cluster centered in London and small clusters in major cultural cities such as Rome and Vienna, but the overall number of tweets is far lower than in the US. A glance at the `tag_count` mappings proves more fruitful - in both maps, the low tag counts are most frequent in all regions, but high tag counts appear exclusively in cluster centers. Since these clusters are all cosmopolitan cities, it’s reasonable to speculate that their users would have the most ties to other participants and thus the ability to tag more people per tweet. However, due to the low number of observations and the correlational nature of the data, we lack the evidence to make a causal claim that cosmopolitan cities generate more tags (and thus more user interactions). Further, our metric to study inter-user interactions, `tag_count`, is an imperfect proxy for how users speak. Not every tag is a meaningful connection between users and the relationship between tagging and user interaction is confounded by this ambiguity.  
 
-The second question we want to answer is: 
 
-*How does the tweet timing affect user construction of #DuBois 
-challenge tweets and how the audience reacts to those tweets?*
+## Twitter Posting Mediums and Audience Engagement
+
+*What is the relationship between the device that publishes a tweet and how the audience engages with the author?*
+
 
 ### Introduction
 
-(1-2 paragraphs)
-Introduction to the question and what parts of the dataset are necessary to answer the question. Also discuss why you’re interested in this question.
+We’re interested in how the different “mediums” of publishing to Twitter are related to the success of the tweet. Based on our own anecdotal experiences, we believe that tweets from traditional computers may be constructed less impulsively than mobile tweets . Further, there are socioeconomic factors tied to which device one picks as well as content considerations; one can easily publish #DuBoisChallenge commentary from an iPhone, but a full plot submission would be exceedingly difficult. By mapping out how such limitations influence audience response, we hope to discover which devices are best-suited for both low-visibility commentary and high-visibility challenge submissions.
+ 
+For this question, we intend to explore how various audience approval metrics vary with the type of device used by the tweet author. To do this, we’ll be manipulating the `text` variable - a character of the platform/access point that the device used to access Twitter - by parsing it through case_when with specific string detections. Then, we will examine `followers` and `like_count` and their relationship with `devicetype`. Unlike the other two variables, the number of followers is not exclusively set by one tweet, but by the user’s long-term success. In recognition of this disparity, we intend to display the relationship between `followers` and `devicetype` with groupings by username and `avg_followers`
+
 
 ### Approach
 
-(1-2 paragraphs)
-Describe what types of plots you are going to make to address your question.
-For each plot, provide a clear explanation as to why this plot (e.g. boxplot, barplot, histogram, etc.) is best for providing the information you are asking about. 
-The two plots should be of different types, and at least one of the two plots needs to use either color mapping or facets.
+Our first plot dives into the relationship between `like_count` and `devicetype` by showing side-by-side boxplots stratified by `devicetype`; our goal is to directly compare how different platforms generate likes and boxplots are especially well-suited to comparing similar distributions. Further, the measures of central tendency - medians and quartiles - are easier to view in boxplot form and better communicate the audience’s reaction to a tweet. Boxplots cannot accommodate large numbers of groups easily, however, so we chose to narrow our analysis to the three device types that form the overwhelming majority of the data (iPhone, Android, and Web App). There is an incredibly strong right skew in the like counts, but applying a log-transform on the x-axis allows all the data to be visible. 
+
+Our second plot shows the distribution of follower count per user stratified across the three most popular device types. In order to assign each user a single follower count and device type,  we use the average number of followers across all their tweets and assign a device type based on the user’s most common way to access twitter. Thus, the plot examines the relationship between the primary device that a user owns and their average number of followers during the competition. We chose to show the distributions of follower count as density plots in order to better examine the shapes of the distributions; we’re interested in not only typical users, but also “extreme” users from the right tail of the distribution. In order to make these extreme values more visible, a log scale is applied to average follower counts. 
+
 
 ### Analysis
 
-(2-3 code blocks, 2 figures, text/code comments as needed)
-In this section, provide the code that generates your plots. Use scale functions to provide nice axis labels and guides.
-You are welcome to use theme functions to customize the appearance of your plot, but you are not required to do so.
-All plots must be made with ggplot2. Do not use base R or lattice plotting functions.
 
 ```{r question-two-plot-one-wrangling}
 tweets <- tweets %>%
@@ -522,9 +444,12 @@ ggplot(
 
 ### Discussion
 
-(1-3 paragraphs)
-In the Discussion section, interpret the results of your analysis. Identify any trends revealed (or not revealed) by the plots.
-Speculate about why the data looks the way it does.
+In our first visualization, we immediately see strong skew in all three device types and their number of likes - the presence of the logarithmic scale implies that a “symmetric” box is actually strongly right-skewed. The strongest right skew and highest median number of likes belongs to Web App tweets. One possible explanation is the challenge’s format - most tweets are either going to be a plot recreation or commentary on another plot. We suspect that plots are disproportionately published by web apps due to screen size required to work with data visualization - since plots will generally earn more viewership than commentary, web app posts are more likely to attain superstar status. 
+
+Our second distribution examines average followers rather than likes in order to assess long-term success rather than individual post success. Overall, Android tweets have a flat distribution while iPhones and Web Apps have left and right skew in the plot, respectively. However, the use of a logarithmic scale means that these shapes correspond to strongly right-skewed data. Of these distributions, web app tweets are skewed the furthest to the right followed by Androids and iPhones. In terms of modal values in the distributions, iPhones have the sharpest and largest peak followed by a slightly lower mode for web apps and no clear peak for Android tweets. 
+
+The finding from both visualizations that web app users are strongly skewed towards positive audience reception may be indicative of the fact that it is much easier to type out and structure tweets on a computer than it is on a phone. In fact, one study from Grammarly showed that people make five times as many writing errors on their phone than on a PC. This may be one potential reason why tweets authored on a Web App device seem to attract more likes than those authored on a mobile device like an Android or iPhone – they could be written more methodically and profoundly. Importantly, the author may have wanted to craft the tweet more carefully because they had more substantive information to share, such as a plot made for the TidyTuesday challenge versus a reaction to a plot someone else shared. It thus follows that tweets crafted using the Web App would result in more likes, since we would expect users to be more engaged in a visualization than simply reaction to a visualization. We are unfortunately limited by the lack of a variable to distinguish challenge submissions and commentary as well as the correlational nature of our Twitter data. 
+
 
 ## Presentation
 

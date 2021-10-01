@@ -81,7 +81,7 @@ include_graphics("images/dubois285.jpeg")
 
 class: inverse, middle, center
 
-# Question #1 : How does general interest of the #DuBois challenge vary geographically?
+# Question #1 : How does user participation and inter-user interaction in the #DuBoisChallenge vary with location?
 
 ---
 
@@ -370,7 +370,7 @@ Euromap <- ggplot() +
 
 class: inverse, middle, center
 
-# Question #2: How does the type of device a tweet author uses to post inform us about how users engage with the tweet and author?
+# Question #2: What is the relationship between the device that publishes a tweet and how the audience engages with the author?
 
 ---
 
