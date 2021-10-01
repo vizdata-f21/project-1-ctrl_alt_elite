@@ -1,12 +1,12 @@
 ---
-title: Project title
+title: Twitter Trends from the \#DuBoisChallenge
 author: Ctrl Alt Elite
 output: github_document
 editor_options: 
   chunk_output_type: inline
 ---
 
-```{r load-packages}
+```{r load-packages, message=FALSE}
 library(tidyverse)
 library(maps)
 library(sf)
@@ -208,39 +208,16 @@ top_10_locations <- tweets_locations %>%
     plot_state = fct_relevel(plot_state, c("New York", "New Jersey", "Massachusetts",
                                            "Pennsylvania","Austria", "United Kingdom",
                                            "Minnesota",
-                                           "Wisconsin",
-                                           "Tennessee", "California" )),
+                                           "Wisconsin", "Tennessee", "California")),
     plot_state = fct_rev(plot_state),
+    region=fct_relevel(region, c("US: Northeast", "Europe", "US: Midwest","US: South", 
+                      "US: West")), 
     percent_tweets = paste(round(n / sum(n), 4) * 100, "%")
   )
 ```
 
-```{r question-one-plot-one}
-ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
-  geom_col() +
-  geom_text(aes(label = percent_tweets, color = internat),
-    size = 2.5,
-    nudge_x = 8,
-    show.legend = FALSE
-  ) +
-  scale_fill_manual(values = c("navyblue", "darkred")) +
-  scale_color_manual(values = c("navyblue", "darkred")) +
-  scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
-  labs(
-    y = "User Location in Twitter Bio",
-    x = "Number of Tweets",
-    title = "Top 10 #DuBoisChallenge Tweet Locations",
-    fill = "Location"
-  ) +
-  theme_minimal() +
-  theme(
-    text = element_text(family = "Times New Roman"),
-    legend.title = element_blank(),
-    legend.position = c(.85, .17) 
-  )
-```
 
-```{r question-one-plot-one-option-two}
+```{r question-one-plot-one}
 library(RColorBrewer)
 ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
   geom_col() +
@@ -259,10 +236,10 @@ ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
     fill = "Location"
   ) +
   theme_minimal() +
-  theme(
+  theme( plot.title = element_text(hjust = 0.5, face = "bold"),
     text = element_text(family = "Times New Roman"),
     legend.title = element_blank(),
-    legend.position = c(.85, .17) 
+    legend.position = c(.85, .25)
   )
 ```
 
@@ -290,26 +267,24 @@ world_map <- ne_countries(
 us_map <- map_data("state")
 canada_map <- map_data("world", "canada")
 
-city_locations <- tribble(
+US_locations <- tribble(
   ~city, ~lat, ~long,
   "NYC", 40.7128, -74.0060,
-  "Newark", 40.7357, -74.1724,
   "Baltimore", 39.2904, -76.6122
+)
+
+EU_locations <- tribble(
+  ~city, ~lat, ~long,
+  "London", 51.5074, -0.1278,
+  "Vienna", 48.2082, 16.3738, 
+  "Rome",41.9028, 12.4964
 )
 
 ```
 
 ```{r question-one-plot-two-northeast, warning = FALSE}
-# Add labels for states and Europe countries
-
-# Do we need to address showing relative populations like we said we would in
-# proposal cause of peer feedback??
 
 set.seed(1234)
-
-# labels <- ggplot(data = city_locations, aes(x = Long, y = Lat)) +
-#   geom_point(aes(x = Long, y = Lat)) +
-#   geom_text(aes(label = City))
 
 ggplot() +
   geom_polygon(
@@ -359,7 +334,7 @@ ggplot() +
     panel.background = element_rect(color = "black", fill = "lightblue"),
     text = element_text(family = "Times New Roman")
   )+
-  geom_text_repel(data=city_locations, aes(x=long, y=lat, label=city))+
+  geom_text_repel(data=US_locations, aes(x=long, y=lat, label=city), size=3, nudge_x = -0.15, nudge_y=0.95, segment.linetype="dotted")+
   coord_map(
     xlim = c(-80, -65),
     ylim = c(36, 46)
@@ -368,10 +343,6 @@ ggplot() +
 ```
 
 ```{r question-one-plot-two-europe}
-# labels_map <- world_map %>% filter(name %in% c(
-#   "Paris", "London"
-# ))
-
 
 ggplot() +
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
@@ -412,7 +383,8 @@ ggplot() +
     panel.border = element_rect(color = "black", fill = NA, size = .75),
     panel.background = element_rect(color = "black", fill = "lightblue"),
     text = element_text(family = "Times New Roman")
-  )
+  )+
+  geom_text_repel(data=EU_locations, aes(x=long, y=lat, label=city), size=3, nudge_x = -14, nudge_y=-0.3, segment.linetype="dotted")
 ```
 
 ### Discussion
@@ -463,28 +435,10 @@ tweets_device <- tweets %>%
   filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")
 ```
 
-```{r question-two-plot-one, warning = FALSE}
-# warning = FALSE: purposefully set x bounds to remove outlier data points
-ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
-  geom_density(show.legend = FALSE) +
-  facet_wrap(. ~ devicetype, scales = "free_y", nrow = 3) +
-  theme_minimal() +
-  scale_x_continuous(
-    breaks = seq(0, 8000, 1000), limit = c(0, 8000),
-    labels = label_number(big.mark = ",")
-  ) +
-  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  scale_y_continuous(labels = label_number(accuracy = .00001)) +
-  labs(
-    title = "Distribution of Follower Count",
-    subtitle = "Stratified by Where Tweet Was Posted From",
-    x = "Number of Followers",
-    y = NULL
-  ) +
-  theme(text = element_text(family = "Times New Roman"))
-```
 
-```{r q2-plot-1}
+```{r q2-plot-1, warning=FALSE}
+# Plot drop's NAs and tweets with 0 likes since log(0) is undefined
+
 users_and_devicetype <- tweets %>%
   group_by(username) %>%
   select(username, devicetype) %>%
@@ -502,101 +456,47 @@ inner_join(users_and_devicetype, users_and_avg_follower, by = "username") %>%
   filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
   ggplot( aes(x = avg_followers, fill = devicetype)) +
   geom_density(show.legend = FALSE) +
-  facet_wrap(. ~ devicetype, scales = "free_y", nrow = 3) +
+  facet_wrap(. ~ devicetype,  nrow = 3) +
   theme_minimal() +
-  scale_x_continuous(
-    breaks = seq(0, 8000, 1000), limit = c(0, 8000),
-    labels = label_number(big.mark = ",")
-  ) +
+   scale_x_log10(labels = label_number(big.mark = ","))+
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
   scale_y_continuous(labels = label_number(accuracy = .00001)) +
   labs(
     title = "Distribution of Follower Count",
     subtitle = "Stratified by Where Tweet Was Posted From",
     x = "Number of Followers",
-    y = NULL
+    y = NULL, caption= "x-axis uses logarithmic spacing"
   ) +
-  theme(text = element_text(family = "Times New Roman"))
+  theme(text = element_text(family = "Times New Roman"), 
+        plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.title = element_text(hjust = 0.5, face = "bold"), plot.caption = element_text(face="italic"))
 ```
 
 
-```{r question-two-plot-two-wrangling1}
-outliers <- tweets_device %>%
-  filter(!is.na(like_count)) %>%
-  group_by(devicetype) %>%
-  summarise(
-    IQR = IQR(like_count),
-    Q1 = quantile(like_count, 0.25),
-    Q3 = quantile(like_count, 0.75),
-    farboundary = Q3 + 2 * IQR,
-    upper_out = Q3 + 1.5 * IQR,
-    lower_out = Q1 - 1.5 * IQR
-  )
+```{r question-two-plot-two-log, warning=FALSE}
 
-tweets_likes <- tweets_device %>%
-  filter(like_count <= round(outliers$farboundary[3]))
-```
-
-```{r question-two-plot-two}
-ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
-  facet_wrap(~devicetype) +
-  geom_boxplot(show.legend = FALSE) +
-  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  labs(
-    x = NULL, y = "Number of Likes",
-    title = "Distribution of Likes",
-    subtitle = "Stratified by Where Tweet Was Posted From",
-    caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.ticks = element_blank(),
-    axis.text.x = element_blank(),
-    text = element_text(family = "Times New Roman")
-  )
-```
-
-```{r question-two-plot-two-wrangling}
-outliers <- tweets_device %>%
-  filter(!is.na(like_count)) %>%
-  group_by(devicetype) %>%
-  summarise(
-    IQR = IQR(like_count),
-    Q1 = quantile(like_count, 0.25),
-    Q3 = quantile(like_count, 0.75),
-    farboundary = Q3 + 2 * IQR,
-    upper_out = Q3 + 1.5 * IQR,
-    lower_out = Q1 - 1.5 * IQR
-  )
-
-tweets_likes <- tweets_device %>%
-  filter(like_count <= round(outliers$farboundary[3]))
-```
-
-```{r question-two-plot-two-log}
+# Plot drop's NAs and tweets with 0 likes since log(0) is undefined
 
 tweets%>%
-  mutate(loglikes=log(like_count))%>%
   filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")%>%
-  ggplot(aes(y = loglikes, fill = devicetype)) +
-  facet_wrap(~devicetype) +
+  ggplot(aes(x = like_count, fill = devicetype)) +
+  facet_wrap(~devicetype, ncol=1) +
   geom_boxplot(show.legend = FALSE) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  scale_x_log10()+
   labs(
-    x = NULL, y = "Number of Likes",
+    y = NULL, x = "Number of Likes",
     title = "Distribution of Likes",
-    subtitle = "Stratified by Where Tweet Was Posted From",
-    caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
+    subtitle = "Stratified by Where Tweet Was Posted From", caption= "x-axis uses logarithmic spacing (tweets with 0 likes are ommited)"
   ) +
   theme_minimal() +
-  theme(
+  theme(plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.title = element_text(hjust = 0.5, face = "bold"), plot.caption = element_text(face="italic", hjust=0.5), 
     axis.ticks = element_blank(),
-    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
     text = element_text(family = "Times New Roman")
   )
 ```
-
-
 
 ### Discussion
 
