@@ -24,6 +24,6 @@ Starks, Allen Hillery, and Sekou Tyler.
 |location         |Self-reported location in Twitter bio |chr  |
 |followers        |Number of followers (of user)         |dbl  |
 |url              |Web link to tweet                     |chr  |
-|verified         |Is user verified?                     |log  |
+|verified         |User verification status              |log  |
 |lat              |Latitude of where tweet is published  |dbl  |
 |long             |Longitude of where tweet is published |dbl  |
