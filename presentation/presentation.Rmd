@@ -14,14 +14,16 @@ output:
       countIncrementalSlides: false
 ---
 
-```{r load-packages, include = FALSE}
-# Add any additional packages you need to this chunk
-# Remove any packages from this list that you're not using
+```{r load-packages, echo = FALSE, message = FALSE}
+# Package messages suppressed
 library(tidyverse)
 library(tidymodels)
-library(palmerpenguins)
 library(knitr)
 library(xaringanthemer)
+library(showtext)
+library(ggrepel)
+library(patchwork)
+
 
 library(tidyverse)
 library(maps)
@@ -33,24 +35,22 @@ library(lubridate)
 library(stringr)
 library(colorspace)
 library(scales)
-
-library(showtext)
 library(ggrepel)
-library(patchwork)
+library(RColorBrewer)
+
 ```
 
-```{r setup, include=FALSE}
-# For better figure resolution
+```{r set-default-figure-parameters, echo = FALSE}
 knitr::opts_chunk$set(
-  fig.retina = 3, 
-  dpi = 300, 
-  fig.width = 8, 
-  fig.asp = 0.618, 
-  out.width = "70%"
-  )
+  fig.width = 8,
+  fig.asp = 0.618,
+  fig.retina = 3,
+  dpi = 300,
+  out.width = "90%"
+)
 ```
 
-```{r load-data, include=FALSE}
+```{r load-data, echo = FALSE}
 tweets <- read.csv("../data/tweets.csv")
 ```
 
@@ -59,8 +59,6 @@ style_xaringan(
   title_slide_background_image = "img/watercolour_sys02_img34_teacup-ocean.jpg"
 )
 ```
-
-class: inverse, middle, center
 
 
 ## Introduction
@@ -72,7 +70,7 @@ visualization expert whose work challenged racist notions
 modern context
 
 - Dataset consists of tweets that include "#DuBoisChallenge" and their various 
-charactersitics such as location, number of retweets, number of followers etc.
+characteristics such as location, number of retweets, number of followers etc.
 
 - Motivation to analyze dataset - aim to dive deeper into how people across the
 world engage with history and data visualizations through social media
@@ -91,55 +89,57 @@ class: inverse, middle, center
 ---
 
 
-## Question 1 - Location Tweets
+## Location Tweets
 
-```{r question-one-plot-one-wrangling, echo = FALSE}
+```{r question-one-wrangling, echo = FALSE}
+tweets <- tweets %>%
+  mutate(tag_count = str_count(content, "@"))
 
 tweets_locations <- tweets %>%
   filter(!str_detect(location, "@"), !str_detect(location, ":")) %>%
-  mutate(location_pre_comma = gsub(",.*", "", location)) %>%
-  mutate(location_pre_comma = case_when(
-    location_pre_comma == "北京" ~ "Beijing",
-    location_pre_comma == "God's earth" ~ "NA",
-    location_pre_comma == "The City College of New York" ~ "New York",
-    location_pre_comma == "World" ~ "NA",
-    location_pre_comma == "he/they" ~ "NA",
-    location_pre_comma == "At the home office" ~ "NA",
-    location_pre_comma == "Deutschland" ~ "Germany",
-    location_pre_comma == "Distrito Federal" ~ "Mexico City",
-    location_pre_comma == "down in dey wid em" ~ "NA",
-    location_pre_comma == "Forde-Obama Hall" ~ "NA",
-    location_pre_comma == "France & UK" ~ "NA",
-    location_pre_comma == "Lil’ Rudyshire" ~ "NA",
-    location_pre_comma == "MIT" ~ "Boston",
-    location_pre_comma == "New Yorker" ~ "New York",
-    location_pre_comma == "OAK / NYC / ATL / The World" ~ "NA",
-    location_pre_comma == "SP" ~ "NA",
-    location_pre_comma == "Toronto || Ottawa" ~ "NA",
-    location_pre_comma == "Tx" ~ "Texas",
-    location_pre_comma == "UK" ~ "United Kingdom",
-    location_pre_comma == "USA" ~ "United States",
-    location_pre_comma == "Worldwide" ~ "NA",
-    TRUE ~ location_pre_comma
-  ))
-
-tweets_locations <- tweets_locations %>%
-  mutate(plot_state = case_when(
-    location_pre_comma == "Nashville" ~ "Tennessee",
-    location_pre_comma == "Merced" ~ "California",
-    location_pre_comma == "Vienna" ~ "Austria",
-    location_pre_comma == "Madison" ~ "Wisconsin",
-    location_pre_comma == "Minneapolis" ~ "Minnesota",
-    location_pre_comma == "Philadelphia" ~ "Pennsylvania",
-    location_pre_comma == "Boston" ~ "Massachusetts",
-    location_pre_comma == "London" ~ "United Kingdom",
-    location_pre_comma == "Edinburgh" ~ "United Kingdom",
-    location_pre_comma == "Amherst" ~ "Massachusetts",
-    location_pre_comma == "Buffalo" ~ "New York",
-    location_pre_comma == "Cambridge" ~ "Massachusetts",
-    location_pre_comma == "San Diego" ~ "California",
-    TRUE ~ as.character(location_pre_comma)
-  ))
+  mutate(
+    location_pre_comma = gsub(",.*", "", location),
+    location_pre_comma = case_when(
+      location_pre_comma == "北京" ~ "Beijing",
+      location_pre_comma == "God's earth" ~ "NA",
+      location_pre_comma == "The City College of New York" ~ "New York",
+      location_pre_comma == "World" ~ "NA",
+      location_pre_comma == "he/they" ~ "NA",
+      location_pre_comma == "At the home office" ~ "NA",
+      location_pre_comma == "Deutschland" ~ "Germany",
+      location_pre_comma == "Distrito Federal" ~ "Mexico City",
+      location_pre_comma == "down in dey wid em" ~ "NA",
+      location_pre_comma == "Forde-Obama Hall" ~ "NA",
+      location_pre_comma == "France & UK" ~ "NA",
+      location_pre_comma == "Lil’ Rudyshire" ~ "NA",
+      location_pre_comma == "MIT" ~ "Boston",
+      location_pre_comma == "New Yorker" ~ "New York",
+      location_pre_comma == "OAK / NYC / ATL / The World" ~ "NA",
+      location_pre_comma == "SP" ~ "NA",
+      location_pre_comma == "Toronto || Ottawa" ~ "NA",
+      location_pre_comma == "Tx" ~ "Texas",
+      location_pre_comma == "UK" ~ "United Kingdom",
+      location_pre_comma == "USA" ~ "United States",
+      location_pre_comma == "Worldwide" ~ "NA",
+      TRUE ~ location_pre_comma
+    ),
+    plot_state = case_when(
+      location_pre_comma == "Nashville" ~ "Tennessee",
+      location_pre_comma == "Merced" ~ "California",
+      location_pre_comma == "Vienna" ~ "Austria",
+      location_pre_comma == "Madison" ~ "Wisconsin",
+      location_pre_comma == "Minneapolis" ~ "Minnesota",
+      location_pre_comma == "Philadelphia" ~ "Pennsylvania",
+      location_pre_comma == "Boston" ~ "Massachusetts",
+      location_pre_comma == "London" ~ "United Kingdom",
+      location_pre_comma == "Edinburgh" ~ "United Kingdom",
+      location_pre_comma == "Amherst" ~ "Massachusetts",
+      location_pre_comma == "Buffalo" ~ "New York",
+      location_pre_comma == "Cambridge" ~ "Massachusetts",
+      location_pre_comma == "San Diego" ~ "California",
+      TRUE ~ as.character(location_pre_comma)
+    )
+  )
 
 top_10_locations <- tweets_locations %>%
   count(plot_state) %>%
@@ -147,58 +147,31 @@ top_10_locations <- tweets_locations %>%
   filter(plot_state != "NA") %>%
   head(10) %>%
   mutate(
-    internat = case_when(
-      plot_state == "United Kingdom" ~ "International",
-      plot_state == "Austria" ~ "International",
-      TRUE ~ "Domestic"
+    region = case_when(
+      plot_state == "New York" ~ "US: Northeast",
+      plot_state == "New Jersey" ~ "US: Northeast",
+      plot_state == "Pennsylvania" ~ "US: Northeast",
+      plot_state == "Massachusetts" ~ "US: Northeast",
+      plot_state == "Tennessee" ~ "US: South",
+      plot_state == "California" ~ "US: West",
+      plot_state == "Austria" ~ "Europe",
+      plot_state == "United Kingdom" ~ "Europe",
+      plot_state == "Wisconsin" ~ "US: Midwest",
+      plot_state == "Minnesota" ~ "US: Midwest"
     ),
-    plot_state = fct_reorder(plot_state, n),
+    region = fct_relevel(region, c(
+      "US: Northeast", "Europe", "US: Midwest", "US: South",
+      "US: West"
+    )),
+    plot_state = fct_relevel(plot_state, c(
+      "New York", "New Jersey", "Massachusetts",
+      "Pennsylvania", "Austria", "United Kingdom",
+      "Minnesota",
+      "Wisconsin", "Tennessee", "California"
+    )),
+    plot_state = fct_rev(plot_state),
     percent_tweets = paste(round(n / sum(n), 4) * 100, "%")
   )
-```
-
-```{r question-one-plot-one, out.width="60%", fig.width=6,echo=FALSE, fig.align = "center"}
-ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = internat)) +
-  geom_col() +
-  geom_text(aes(label = percent_tweets, color = internat),
-    size = 2.5,
-    nudge_x = 8,
-    show.legend = FALSE
-  ) +
-  scale_fill_manual(values = c("navyblue", "darkred")) +
-  scale_color_manual(values = c("navyblue", "darkred")) +
-  scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)) +
-  labs(
-    y = "Location Tweeted From",
-    x = "Number of Tweets",
-    title = "Top 10 #DuBoisChallenge Tweet Locations",
-    fill = "Location"
-  ) +
-  theme_minimal() +
-  theme(
-    #text = element_text(family = "Times New Roman"),
-    legend.title = element_blank(),
-    legend.position = c(.85, .17)
-  )
-```
-
-- Seeking to understand 
-what the most popular 
-locations at the time
- of tweets were for 
- the #DuBoisChallenge.
-- Shows most of the Twitter 
-  challenge activity is 
-  occurring in the US
-- Most represented home 
- location is in New York
-
----
-
-
-```{r question-one-plot-two-wrangling, echo = FALSE, out.width = "72%"}
-tweets <- tweets %>%
-  mutate(tag_count = str_count(content, "@"))
 
 northeast_tweets <- tweets %>%
   filter(
@@ -220,28 +193,69 @@ world_map <- ne_countries(
 us_map <- map_data("state")
 canada_map <- map_data("world", "canada")
 
-city_locations <- tribble(
+US_locations <- tribble(
   ~city, ~lat, ~long,
   "NYC", 40.7128, -74.0060,
-  "Newark", 40.7357, -74.1724,
   "Baltimore", 39.2904, -76.6122
 )
+
+EU_locations <- tribble(
+  ~city, ~lat, ~long,
+  "London", 51.5074, -0.1278,
+  "Vienna", 48.2082, 16.3738,
+  "Rome", 41.9028, 12.4964
+)
+
+```
+
+```{r question-one-plot-one, out.width="60%", fig.width=6,echo=FALSE, fig.align = "center", fig.showtext = FALSE}
+ggplot(data = top_10_locations, aes(y = plot_state, x = n, fill = region)) +
+  geom_col() +
+  geom_text(aes(label = percent_tweets, color = region),
+    size = 2.5,
+    nudge_x = 8,
+    show.legend = FALSE
+  ) +
+  scale_fill_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_continuous(
+    breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200)
+  ) +
+  labs(
+    title = "Top 10 #DuBoisChallenge Tweet Locations",
+    caption = "% calculated out of top 10",
+    x = "Number of Tweets",
+    y = "User Location in Twitter Bio",
+    fill = "Location"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.caption = element_text(face = "italic"),
+    legend.title = element_blank(),
+    legend.position = c(.848, .25),
+    text = element_text(family = "Times New Roman")
+  )
 ```
 
 
-```{r question-one-plot-two-northeast, warning = FALSE, out.width="70%", fig.width=4, echo=FALSE}
-# Add labels for states and Europe countries
+- Seeking to understand 
+what the most popular 
+locations at the time
+ of tweets were for 
+ the #DuBoisChallenge.
+- Shows most of the Twitter 
+  challenge activity is 
+  occurring in the US
+- Most represented home 
+ location is New York
 
-# Do we need to address showing relative populations like we said we would in
-# proposal cause of peer feedback??
+---
 
+```{r question-one-plot-two, echo = FALSE}
 set.seed(1234)
 
-# labels <- ggplot(data = city_locations, aes(x = Long, y = Lat)) +
-#   geom_point(aes(x = Long, y = Lat)) +
-#   geom_text(aes(label = City))
-
-plot1 <- ggplot() +
+NEmap <- ggplot() +
   geom_polygon(
     data = canada_map,
     aes(x = long, y = lat, group = group),
@@ -259,7 +273,8 @@ plot1 <- ggplot() +
     aes(
       x = long, y = lat, size = tag_count, color = tag_count,
       alpha = tag_count
-    ))  +
+    )
+  ) +
   labs(
     title = "#DuBoisChallenge Tweets",
     subtitle = "in Northeastern U.S. & Canada\n",
@@ -281,29 +296,27 @@ plot1 <- ggplot() +
     alpha = guide_legend()
   ) +
   theme(
-    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, face = "bold"),
     plot.subtitle = element_text(hjust = 0.5, face = "italic"),
-    plot.title = element_text(hjust = 0.5, face = "bold"), 
     plot.caption = element_text(hjust = 0.5),
+    legend.position = "bottom",
     panel.border = element_rect(color = "black", fill = NA, size = .75),
-    panel.background = element_rect(color = "black", fill = "lightblue")
-    #text = element_text(family = "Times New Roman")
-  )+
-  geom_text_repel(data=city_locations, aes(x=long, y=lat, label=city))+
+    panel.background = element_rect(color = "black", fill = "lightblue"),
+    text = element_text(family = "Times New Roman")
+  ) +
+  geom_text_repel(
+    data = US_locations,
+    aes(x = long, y = lat, label = city),
+    size = 3, nudge_x = -0.15,
+    nudge_y = 0.95,
+    segment.linetype = "dotted"
+  ) +
   coord_map(
     xlim = c(-80, -65),
     ylim = c(36, 46)
   )
-  
-```
 
-```{r question-one-plot-two-europe, out.width="70%", fig.width=4, echo=FALSE}
-# labels_map <- world_map %>% filter(name %in% c(
-#   "Paris", "London"
-# ))
-
-
-plot2 <- ggplot() +
+Euromap <- ggplot() +
   geom_sf(data = world_map, fill = "#F0F0F0", color = "black") +
   geom_jitter(
     data = europe_tweets,
@@ -312,7 +325,6 @@ plot2 <- ggplot() +
       alpha = tag_count
     )
   ) +
-   #geom_sf_label(data = world_map, aes(label = name), label.padding = unit(1, "mm")) +
   coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
   labs(
     title = "#DuBoisChallenge Tweets",
@@ -335,29 +347,35 @@ plot2 <- ggplot() +
     alpha = guide_legend()
   ) +
   theme(
-    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, face = "bold"),
     plot.subtitle = element_text(hjust = 0.5, face = "italic"),
-    plot.title = element_text(hjust = 0.5, face = "bold"), 
     plot.caption = element_text(hjust = 0.5),
+    legend.position = "bottom",
     panel.border = element_rect(color = "black", fill = NA, size = .75),
-    panel.background = element_rect(color = "black", fill = "lightblue")
-    #text = element_text(family = "Times New Roman")
+    panel.background = element_rect(color = "black", fill = "lightblue"),
+    text = element_text(family = "Times New Roman")
+  ) +
+  geom_text_repel(
+    data = EU_locations,
+    aes(x = long, y = lat, label = city),
+    size = 3,
+    nudge_x = -14, nudge_y = -0.3,
+    segment.linetype = "dotted"
   )
 ```
 
+## Tweet Maps
 
-## Question 1 - Tweet Maps
-
-```{r out.width="95%", fig.width=8, echo=FALSE, warning = FALSE, fig.center = TRUE}
-(plot1 + theme(plot.margin = unit(c(0,35,0,0), "pt"))) +
-(plot2 + theme(plot.margin = unit(c(0,0,0,35), "pt")))
+```{r question-one-map-plots, out.width="80%", fig.width=8, warning = FALSE, fig.align = "center", echo = FALSE}
+(NEmap + theme(plot.margin = unit(c(0,35,0,0), "pt"))) +
+(Euromap + theme(plot.margin = unit(c(0,0,0,35), "pt")))
 ```
 
 ---
 
 class: inverse, middle, center
 
-# Question 2: How does the type of device a tweet author uses to post inform us about how users engage with the tweet and author?
+# Question #2: How does the type of device a tweet author uses to post inform us about how users engage with the tweet and author?
 
 ---
 
@@ -374,85 +392,94 @@ tweets <- tweets %>%
     str_detect(text, "Twitter for iPad") ~ "iPad",
     str_detect(text, "TweetDeck") ~ "TweetDeck",
     str_detect(text, "Crowdfire App") ~ "Crowdfire App",
-    str_detect(text, "Twitter for Mac") ~ "Mac"))
+    str_detect(text, "Twitter for Mac") ~ "Mac"
+  ))
 
-tweets_device <- tweets %>% 
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")
+tweets_device <- tweets %>%
+  filter(devicetype == "iPhone" |
+    devicetype == "Web App" |
+    devicetype == "Android")
+
+users_and_devicetype <- tweets %>%
+  group_by(username) %>%
+  select(username, devicetype) %>%
+  count(devicetype) %>%
+  arrange(desc(n)) %>%
+  slice(1) %>%
+  select(-n)
+
+users_and_avg_follower <- tweets %>%
+  group_by(username) %>%
+  summarise(avg_followers = mean(followers))
+
+joined_devices_follower <- inner_join(users_and_devicetype,
+  users_and_avg_follower,
+  by = "username"
+) %>%
+  filter(devicetype == "iPhone" |
+    devicetype == "Web App" |
+    devicetype == "Android")
 ```
 
-
-```{r question-two-plot-one, warning = FALSE, out.width="65%", fig.width=6,echo=FALSE, fig.align = "center"}
-# warning = FALSE: purposefully set x bounds to remove outlier data points
-ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
-  geom_density(show.legend = FALSE) +
-  facet_wrap(. ~ devicetype, scales = "free_y", nrow = 3) +
-  theme_minimal() +
-  scale_x_continuous(
-    breaks = seq(0, 8000, 1000), limit = c(0, 8000),
-    labels = label_number(big.mark = ",")
-  ) +
+```{r question-two-plot-one, warning=FALSE,out.width="65%", fig.width=6,echo=FALSE, fig.align = "center", fig.showtext = FALSE}
+# Plot drops NAs and tweets with 0 likes since log(0) is undefined
+ggplot(data = tweets_device, aes(x = like_count, fill = devicetype)) +
+  facet_wrap(~devicetype, ncol = 1) +
+  geom_boxplot(show.legend = FALSE) +
   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  scale_y_continuous(labels = label_number(accuracy = .00001)) +
+  scale_x_log10() +
   labs(
-    title = "Distribution of Follower Count",
-    subtitle = "Stratified by Where Tweet Was Posted From",
-    x = "Number of Followers",
-    y = NULL
-  ) 
-#+theme(text = element_text(family = "Times New Roman"))
+    title = "Distribution of Likes",
+    subtitle = "by Device Tweet Was Posted From",
+    caption = "x-axis uses logarithmic scale (tweets with 0 likes are ommited)",
+    x = "Number of Likes",
+    y = NULL 
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.caption = element_text(face = "italic", hjust = 0.5),
+    axis.ticks = element_blank(),
+    axis.text.y = element_blank(),
+    text = element_text(family = "Times New Roman")
+  )
 ```
 
 - Shows the relationship between like count and the three most popular device types
 - Distribution of followers is heavily right skewed for Web App + Android
 
-
-
-
-
 ---
 
 ##Likes by Device Type
 
-
-```{r question-two-plot-two-wrangling,out.width="100%", fig.width=7, echo=FALSE}
-outliers <- tweets_device %>%
-  filter(!is.na(like_count)) %>%
-  group_by(devicetype) %>%
-  summarise(
-    IQR = IQR(like_count),
-    Q1 = quantile(like_count, 0.25),
-    Q3 = quantile(like_count, 0.75),
-    farboundary = Q3 + 2 * IQR,
-    upper_out = Q3 + 1.5 * IQR,
-    lower_out = Q1 - 1.5 * IQR
-  )
-
-tweets_likes <- tweets_device %>%
-  filter(like_count <= round(outliers$farboundary[3]))
-```
-
-```{r question-two-plot-two, out.width="62%", fig.width=4, echo=FALSE, warning = FALSE, fig.align = "center"}
-
-tweets%>%
-  mutate(loglikes=log(like_count))%>%
-  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android")%>%
-  ggplot(aes(y = loglikes, fill = devicetype)) +
-  facet_wrap(~devicetype) +
-  geom_boxplot(show.legend = FALSE) +
-  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-  labs(
-    x = NULL, y = "Number of Likes",
-    title = "Distribution of Likes",
-    subtitle = "Stratified by Where Tweet Was Posted From",
-    caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
-  ) +
+```{r question-two-plot-two, warning=FALSE, out.width="63%", fig.width=6, echo=FALSE, warning = FALSE, fig.align = "center", fig.showtext = FALSE}
+# Plot drop's NAs and tweets with 0 likes since log(0) is undefined
+ggplot(
+  data = joined_devices_follower,
+  aes(x = avg_followers, fill = devicetype)
+) +
+  geom_density(show.legend = FALSE) +
+  facet_wrap(. ~ devicetype, nrow = 3) +
   theme_minimal() +
+  scale_x_log10(labels = label_number(big.mark = ",")) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  scale_y_continuous(labels = label_number(accuracy = .1)) +
+  labs(
+    title = "Distribution of Follower Count",
+    subtitle = "by User's Primary Device",
+    caption = "x-axis uses logarithmic scale", 
+    x = "Average Number of Followers Per User",
+    y = NULL
+  ) +
   theme(
-    axis.ticks = element_blank(),
-    axis.text.x = element_blank()
-    #text = element_text(family = "Times New Roman")
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, face = "italic"),
+    plot.caption = element_text(face = "italic"),
+    text = element_text(family = "Times New Roman")
   )
 ```
+
 
 - Shows the distribution of followers based on the three most popular device types  
 - Web App tweets had the highest median number of followers
@@ -461,39 +488,8 @@ tweets%>%
 
 ---
 
-## Math Expressions
-
-You can write LaTeX math expressions inside a pair of dollar signs, e.g. &#36;\alpha+\beta$ renders $\alpha+\beta$. You can use the display style with double dollar signs:
-
-```
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-```
-
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-
-Limitations:
-
-1. The source code of a LaTeX math expression must be in one line, unless it is inside a pair of double dollar signs, in which case the starting `$$` must appear in the very beginning of a line, followed immediately by a non-space character, and the ending `$$` must be at the end of a line, led by a non-space character;
-
-1. There should not be spaces after the opening `$` or before the closing `$`.
-
-1. Math does not work on the title slide (see [#61](https://github.com/yihui/xaringan/issues/61) for a workaround).
-
----
-
 class: inverse, middle, center
 
-# Wrap up
+# Thank you for listening!
 
 ---
-
-## Feeling adventurous?
-
-- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
-
-- You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
-
-- But some of you might want to play around with slide styling. The 
-`xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
-
-- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.
