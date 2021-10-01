@@ -603,24 +603,25 @@ terms of modal values in the distributions, iPhones have the sharpest
 and largest peak followed by a slightly lower mode for Web Apps and no
 clear peak for Android tweets.
 
-The finding from both visualizations that Web App users are strongly
-skewed towards positive audience reception in the short term and long
-term may be indicative of the fact that it is much easier to type out
-and structure tweets on a computer than it is on a phone. In fact, one
-study from Grammarly showed that people make five times as many writing
-errors on their phone than on a PC. This may be one potential reason why
-tweets authored on a Web App device seem to attract more likes than
-those authored on a mobile device like an Android or iPhone – they could
-be written more methodically and profoundly. Importantly, the author may
-have wanted to craft the tweet more carefully because they had more
-substantive information to share, such as a plot made for the
-TidyTuesday challenge versus a reaction to a plot someone else shared.
-It thus follows that tweets crafted using the Web App would result in
-more likes, since we would expect users to be more engaged in a
-visualization than simply reaction to a visualization. We are
-unfortunately limited by the lack of a variable to easily distinguish
-challenge submissions and commentary as well as the correlational nature
-of our Twitter data.
+We expected likes and followers to have a similar relationship with
+`devicetype` where the device that garners more likes would also attract
+the most followers. Surprisingly, we see that Web Apps are responsible
+for the “superstar” tweets with a high like count while iPhone users
+tend to draw the most followers. We have two possible explanations for
+these effects. An explanation for the web apps might be that it is much
+easier to type out and structure tweets on a computer than it is on a
+phone. In fact, one study from Grammarly showed that people make five
+times as many writing errors on their phone than on a PC. This may be
+one potential reason why tweets authored on a Web App device seem to
+attract more likes than those authored on a mobile device like an
+Android or iPhone – they could be written more methodically and
+profoundly. In regards to the followers, there are socioeconomic
+considerations; iPhones are more expensive than most computers or
+Androids and higher socioeconomic status could lead to more free time to
+create tweets on a regular basis. However, we lack data on both writing
+times and the cost of a user’s device; thus, we can’t make causal
+conclusions between device and tweet success, but the above pattern
+warrants future study with more experimental data.
 
 ## Presentation
 
