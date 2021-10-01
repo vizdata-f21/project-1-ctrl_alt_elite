@@ -484,6 +484,42 @@ ggplot(data = tweets_device, aes(x = followers, fill = devicetype)) +
   theme(text = element_text(family = "Times New Roman"))
 ```
 
+```{r q2-plot-1}
+users_and_devicetype <- tweets %>%
+  group_by(username) %>%
+  select(username, devicetype) %>%
+  count(devicetype) %>%
+  arrange(desc(n)) %>%
+  slice(1) %>%
+  select(-n)
+
+users_and_avg_follower <- tweets %>%
+  group_by(username) %>%
+  summarise(avg_followers = mean(followers)) 
+
+
+inner_join(users_and_devicetype, users_and_avg_follower, by = "username") %>%
+  filter(devicetype == "iPhone" | devicetype == "Web App"| devicetype == "Android") %>%
+  ggplot( aes(x = avg_followers, fill = devicetype)) +
+  geom_density(show.legend = FALSE) +
+  facet_wrap(. ~ devicetype, scales = "free_y", nrow = 3) +
+  theme_minimal() +
+  scale_x_continuous(
+    breaks = seq(0, 8000, 1000), limit = c(0, 8000),
+    labels = label_number(big.mark = ",")
+  ) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  scale_y_continuous(labels = label_number(accuracy = .00001)) +
+  labs(
+    title = "Distribution of Follower Count",
+    subtitle = "Stratified by Where Tweet Was Posted From",
+    x = "Number of Followers",
+    y = NULL
+  ) +
+  theme(text = element_text(family = "Times New Roman"))
+```
+
+
 ```{r question-two-plot-two-wrangling1}
 outliers <- tweets_device %>%
   filter(!is.na(like_count)) %>%
@@ -502,22 +538,22 @@ tweets_likes <- tweets_device %>%
 ```
 
 ```{r question-two-plot-two}
-# ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
-#   facet_wrap(~devicetype) +
-#   geom_boxplot(show.legend = FALSE) +
-#   scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
-#   labs(
-#     x = NULL, y = "Number of Likes",
-#     title = "Distribution of Likes",
-#     subtitle = "Stratified by Where Tweet Was Posted From",
-#     caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
-#   ) +
-#   theme_minimal() +
-#   theme(
-#     axis.ticks = element_blank(),
-#     axis.text.x = element_blank(),
-#     text = element_text(family = "Times New Roman")
-#   )
+ggplot(data = tweets_likes, aes(y = like_count, fill = devicetype)) +
+  facet_wrap(~devicetype) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("#a4c639", "#A2AAAD", "#1DA1F2")) +
+  labs(
+    x = NULL, y = "Number of Likes",
+    title = "Distribution of Likes",
+    subtitle = "Stratified by Where Tweet Was Posted From",
+    caption = "Outliers:\n0 Android, 6 iPhone, 32 Web App"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank(),
+    text = element_text(family = "Times New Roman")
+  )
 ```
 
 ```{r question-two-plot-two-wrangling}
